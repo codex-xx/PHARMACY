@@ -26,3 +26,7 @@ $routes->get('products/delete/(:num)', 'Products::delete/$1');
 // Inventory & Reports
 $routes->get('inventory', 'Inventory::index');
 $routes->get('reports', 'Reports::index');
+
+// Chat (AJAX)
+$routes->get('chat/fetch', 'Chat::fetch');
+$routes->post('chat/send', 'Chat::send');
