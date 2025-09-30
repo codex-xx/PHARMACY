@@ -9,7 +9,5 @@ class ProductModel extends Model
     protected $table = 'products';
     protected $primaryKey = 'id';
     protected $useTimestamps = true;
-    protected $allowedFields = ['name', 'sku', 'price', 'stock'];
+    protected $allowedFields = ['name', 'sku', 'barcode', 'price', 'stock'];
 }
-
-

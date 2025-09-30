@@ -24,6 +24,7 @@
 	<div class="container my-4">
 		<?php $role = session()->get('user')['role'] ?? ''; ?>
 		<?php if ($role === 'admin'): ?>
+			<!-- Admin View -->
 			<div class="row g-4">
 				<div class="col-12 col-lg-6">
 					<div class="card text-center">
@@ -45,6 +46,7 @@
 				</div>
 			</div>
 		<?php else: ?>
+			<!-- Cashier View -->
 			<div class="row g-4">
 				<div class="col-12 col-lg-8">
 					<h5 class="mb-3">Products</h5>
@@ -58,6 +60,25 @@
 					<h5 class="mb-3">Cart</h5>
 					<div class="card">
 						<div class="card-body">
+							<!-- ✅ Barcode Scanner Input -->
+							<div class="mb-3">
+								<input type="text" id="barcodeInput" 
+									class="form-control form-control-sm" 
+									placeholder="Scan or enter barcode..." autofocus>
+							</div>
+
+							<!-- ✅ Product Preview -->
+							<div id="productPreview" class="mb-3" style="display:none;">
+								<div class="card border-success">
+									<div class="card-body py-2">
+										<h6 id="previewName" class="mb-1"></h6>
+										<div><strong>Price:</strong> $<span id="previewPrice"></span></div>
+										<div><strong>Stock:</strong> <span id="previewStock"></span></div>
+										<button class="btn btn-sm btn-success mt-2" id="addPreviewBtn">Add to Cart</button>
+									</div>
+								</div>
+							</div>
+
 							<table class="table table-sm cart-table" id="cartTable">
 								<thead>
 									<tr>
@@ -84,11 +105,14 @@
 	</div>
 
 	<script>
+	// Products from backend
 	const products = <?php echo json_encode(array_map(function($p) {
 		return [
 			'id' => (int) $p['id'],
 			'name' => (string) $p['name'],
-			'price' => (float) $p['price']
+			'price' => (float) $p['price'],
+			'stock' => (int) $p['stock'],
+			'barcode' => (string) $p['barcode']
 		];
 	}, $dbProducts ?? []), JSON_UNESCAPED_SLASHES); ?>;
 
@@ -97,6 +121,7 @@
 	const grandTotalEl = document.getElementById('grandTotal');
 	const cart = new Map();
 
+	// 🔹 Render product cards
 	function renderProducts() {
 		productsContainer.innerHTML = products.map(p => `
 			<div class="col">
@@ -110,20 +135,25 @@
 		`).join('');
 	}
 
-	function addToCart(id) {
-		const product = products.find(p => p.id === id);
-		if (!product) return;
-		const existing = cart.get(id) || { ...product, qty: 0 };
-		existing.qty += 1;
-		cart.set(id, existing);
-		renderCart();
-	}
+	// 🔹 Add to cart (works for both normal & barcode scanned products)
+function addToCart(id, productObj = null) {
+    let product = productObj || products.find(p => p.id === id);
+    if (!product) return;
 
+    // If product already in cart, just increase quantity
+    const existing = cart.get(product.id) || { ...product, qty: 0 };
+    existing.qty += 1;
+    cart.set(product.id, existing);
+    renderCart();
+}
+
+	// 🔹 Remove item
 	function removeFromCart(id) {
 		cart.delete(id);
 		renderCart();
 	}
 
+	// 🔹 Change quantity
 	function changeQty(id, delta) {
 		const item = cart.get(id);
 		if (!item) return;
@@ -132,6 +162,7 @@
 		renderCart();
 	}
 
+	// 🔹 Render cart
 	function renderCart() {
 		let grand = 0;
 		cartBody.innerHTML = Array.from(cart.values()).map(item => {
@@ -155,6 +186,7 @@
 		grandTotalEl.textContent = `$${grand.toFixed(2)}`;
 	}
 
+	// 🔹 Checkout
 	document.getElementById('checkoutBtn').addEventListener('click', () => {
 		if (cart.size === 0) { alert('Cart is empty'); return; }
 		alert('Checkout successful!');
@@ -162,12 +194,90 @@
 		renderCart();
 	});
 
+	// ✅ Barcode Scanner Logic with Preview
+	const barcodeInput = document.getElementById('barcodeInput');
+	const previewBox = document.getElementById('productPreview');
+	const previewName = document.getElementById('previewName');
+	const previewPrice = document.getElementById('previewPrice');
+	const previewStock = document.getElementById('previewStock');
+	const addPreviewBtn = document.getElementById('addPreviewBtn');
+	let previewProduct = null;
+
+	// ✅ Barcode Scanner Direct-to-Cart
+barcodeInput.addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        e.preventDefault();
+        const code = barcodeInput.value.trim();
+        if (!code) return;
+
+        fetch("<?php echo site_url('api/barcode/find'); ?>/" + encodeURIComponent(code))
+            .then(res => res.json())
+            .then(product => {
+                if (product && product.id) {
+                    // If product exists → add/increase qty in cart
+                    addToCart(product.id, product);
+                } else {
+                    alert("❌ Product not found for barcode: " + code);
+                }
+                barcodeInput.value = '';
+            })
+            .catch(err => {
+                console.error(err);
+                alert("⚠️ Error fetching product");
+                barcodeInput.value = '';
+            });
+    }
+});
+	// ✅ Barcode Scanner with Preview
+let scanTimer; // timer to wait until scanner finished typing
+barcodeInput.addEventListener('input', function () {
+    clearTimeout(scanTimer);
+    scanTimer = setTimeout(() => {
+        const code = barcodeInput.value.trim();
+        if (!code) return;
+
+        // Fetch product from DB by barcode
+        fetch("<?php echo site_url('api/barcode/find'); ?>/" + encodeURIComponent(code))
+            .then(res => res.json())
+            .then(product => {
+                if (product && product.id) {
+                    // 🔹 Show preview box
+                    previewProduct = product;
+                    previewName.textContent = product.name;
+                    previewPrice.textContent = parseFloat(product.price).toFixed(2);
+                    previewStock.textContent = product.stock;
+                    previewBox.style.display = "block";
+                } else {
+                    previewBox.style.display = "none";
+                    alert("❌ Product not found: " + code);
+                }
+                barcodeInput.value = ""; // clear field for next scan
+            })
+            .catch(err => {
+                console.error(err);
+                alert("⚠️ Error fetching product");
+                previewBox.style.display = "none";
+                barcodeInput.value = "";
+            });
+    }, 300); // wait 300ms after typing stops
+});
+
+// ✅ Add previewed product to cart
+addPreviewBtn.addEventListener('click', () => {
+    if (previewProduct) {
+        addToCart(previewProduct.id, previewProduct);
+        previewBox.style.display = "none";
+        previewProduct = null;
+    }
+});
+
+
+	// Initialize
 	renderProducts();
 	renderCart();
 	</script>
+
 	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-<?php echo view('partials/chat_widget'); ?>
+	<?php echo view('partials/chat_widget'); ?>
 </body>
 </html>
-
-

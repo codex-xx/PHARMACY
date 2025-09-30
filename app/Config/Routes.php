@@ -30,3 +30,9 @@ $routes->get('reports', 'Reports::index');
 // Chat (AJAX)
 $routes->get('chat/fetch', 'Chat::fetch');
 $routes->post('chat/send', 'Chat::send');
+
+$routes->group('api', ['namespace' => 'App\Controllers\Api'], function($routes) {
+    $routes->get('barcode/generate/(:any)', 'BarcodeController::generate/$1');
+    $routes->get('barcode/find/(:any)', 'BarcodeController::find/$1');
+    $routes->post('barcode/create', 'BarcodeController::create');
+});
