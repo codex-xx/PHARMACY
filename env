@@ -21,6 +21,18 @@
 #--------------------------------------------------------------------
 
 # app.baseURL = ''
+# --------------------------------------------------------------------
+# Outbound Mail (PHPMailer SMTP)
+# --------------------------------------------------------------------
+# Configure these for password reset emails
+# SMTP_HOST = smtp.example.com
+# SMTP_USER = carlalbarina09@gmail.com
+# SMTP_PASS = 
+# SMTP_PORT = 587
+# SMTP_SECURE = tls
+# MAIL_FROM = carlalbarina09@gmail.com
+# MAIL_FROM_NAME = Pharmacy POS
+
 # If you have trouble with `.`, you could also use `_`.
 # app_baseURL = ''
 # app.forceGlobalSecureRequests = false

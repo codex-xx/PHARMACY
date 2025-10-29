@@ -10,7 +10,17 @@ class UserModel extends Model
     protected $primaryKey = 'id';
     protected $returnType = 'array';
     protected $useTimestamps = true;
-    protected $allowedFields = ['username', 'password_hash', 'role'];
+    protected $allowedFields = [
+        'username',
+        'password_hash',
+        'role',
+        'email',
+        'phone',
+        'phone_verification_code',
+        'phone_verified_at',
+        'password_reset_token',
+        'password_reset_expires_at',
+    ];
 
     public function findByUsername(string $username): ?array
     {

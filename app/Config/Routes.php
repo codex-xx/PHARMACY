@@ -12,6 +12,19 @@ $routes->get('login', 'Auth::login');
 $routes->post('login', 'Auth::attempt');
 $routes->get('logout', 'Auth::logout');
 
+// Registration & Phone Verification
+$routes->get('register', 'Auth::register');
+$routes->post('register', 'Auth::registerPost');
+$routes->get('verify-phone', 'Auth::verifyPhone');
+$routes->post('verify-phone', 'Auth::verifyPhonePost');
+$routes->post('verify-phone/resend', 'Auth::resendVerificationCode');
+
+// Password reset
+$routes->get('forgot-password', 'Auth::forgotPassword');
+$routes->post('forgot-password', 'Auth::forgotPasswordPost');
+$routes->get('reset-password/(:any)', 'Auth::resetPassword/$1');
+$routes->post('reset-password/(:any)', 'Auth::resetPasswordPost/$1');
+
 // Dashboard
 $routes->get('dashboard', 'Dashboard::index');
 

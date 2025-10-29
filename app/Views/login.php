@@ -26,8 +26,12 @@
 								<input type="password" class="form-control" id="password" name="password" required>
 							</div>
 							<button type="submit" class="btn btn-primary w-100">Login</button>
-						</form>
-						<div class="text-muted small mt-3">Demo user: admin / password</div>
+					</form>
+					<div class="d-flex justify-content-between mt-3">
+						<a href="<?php echo site_url('register'); ?>">Create account</a>
+						<a href="<?php echo site_url('forgot-password'); ?>">Forgot password?</a>
+					</div>
+					<div class="text-muted small mt-3">Demo user: admin / password</div>
 					</div>
 				</div>
 			</div>
