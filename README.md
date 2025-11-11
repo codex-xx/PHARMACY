@@ -1,4 +1,44 @@
-# CodeIgniter 4 Framework
+# Pharmacy POS System
+
+A Point of Sale (POS) system built with CodeIgniter 4 for pharmacy management.
+
+## Quick Start - Cloning on a New Device
+
+Follow these steps to clone and set up the project on another device:
+
+### Prerequisites
+- PHP 8.1 or higher
+- Composer (https://getcomposer.org)
+- Git
+
+### Installation Steps
+
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/codex-xx/PHARMACY.git
+   cd PHARMACY
+   ```
+
+2. **Install dependencies (this is automatic - no need to run `composer install` manually):**
+   ```bash
+   composer install
+   ```
+   
+   This will automatically:
+   - Download PHPMailer and all other dependencies
+   - Generate the autoloader
+   - Set up the vendor directory
+
+3. **Configure environment variables:**
+   - Copy `.env.example` to `.env` (if it exists)
+   - Update database and SMTP settings as needed
+
+4. **Run the application:**
+   ```bash
+   php spark serve
+   ```
+   
+   The application will be available at `http://localhost:8080`
 
 ## What is CodeIgniter?
 
