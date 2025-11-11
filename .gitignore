@@ -1,0 +1,40 @@
+# Dependency directories
+vendor/
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# IDE
+.vscode/
+.idea/
+*.sublime-*
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+.directory
+
+# CodeIgniter
+writable/logs/*
+writable/cache/*
+writable/session/*
+writable/debugbar/*
+!writable/logs/.gitkeep
+!writable/cache/.gitkeep
+!writable/session/.gitkeep
+!writable/debugbar/.gitkeep
+
+# Uploads
+writable/uploads/*
+!writable/uploads/.gitkeep
+
+# Test files
+tests/tmp/*
+
+# Composer lock (optional - uncomment if you want reproducible installs)
+# composer.lock
