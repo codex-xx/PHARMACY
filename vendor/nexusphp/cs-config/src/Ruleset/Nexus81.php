@@ -234,6 +234,7 @@ final class Nexus81 extends AbstractRuleset
             'method_chaining_indentation' => true,
             'modernize_strpos' => ['modernize_stripos' => true],
             'modernize_types_casting' => true,
+            'modifier_keywords' => ['elements' => ['const', 'method', 'property']],
             'multiline_comment_opening_closing' => true,
             'multiline_promoted_properties' => [
                 'keep_blank_lines' => false,
@@ -489,10 +490,11 @@ final class Nexus81 extends AbstractRuleset
             'phpdoc_no_access' => true,
             'phpdoc_no_alias_tag' => [
                 'replacements' => [
+                    'const' => 'var',
+                    'link' => 'see',
                     'property-read' => 'property',
                     'property-write' => 'property',
                     'type' => 'var',
-                    'link' => 'see',
                 ],
             ],
             'phpdoc_no_empty_return' => false,
@@ -554,6 +556,7 @@ final class Nexus81 extends AbstractRuleset
             'phpdoc_single_line_var_spacing' => true,
             'phpdoc_summary' => true,
             'phpdoc_tag_casing' => ['tags' => ['inheritDoc']],
+            'phpdoc_tag_no_named_arguments' => false,
             'phpdoc_tag_type' => ['tags' => ['inheritDoc' => 'inline']],
             'phpdoc_to_comment' => [
                 'allow_before_return_statement' => true,
@@ -714,7 +717,6 @@ final class Nexus81 extends AbstractRuleset
             'types_spaces' => ['space' => 'none', 'space_multiple_catch' => null],
             'unary_operator_spaces' => ['only_dec_inc' => false],
             'use_arrow_functions' => true,
-            'visibility_required' => ['elements' => ['const', 'method', 'property']],
             'void_return' => true,
             'whitespace_after_comma_in_array' => ['ensure_single_space' => true],
             'yield_from_array_to_yields' => true,

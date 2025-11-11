@@ -26,6 +26,7 @@ use PhpCsFixer\FixerConfiguration\FixerOptionBuilder;
 use PhpCsFixer\FixerDefinition\CodeSample;
 use PhpCsFixer\FixerDefinition\FixerDefinition;
 use PhpCsFixer\FixerDefinition\FixerDefinitionInterface;
+use PhpCsFixer\Future;
 use PhpCsFixer\Preg;
 use PhpCsFixer\Tokenizer\CT;
 use PhpCsFixer\Tokenizer\Token;
@@ -292,7 +293,7 @@ final class OrderedImportsFixer extends AbstractFixer implements ConfigurableFix
                 ->setDefault(self::SORT_ALPHA)
                 ->setNormalizer(static function (Options $options, ?string $value) use ($fixerName): ?string {
                     if (self::SORT_LENGTH === $value) {
-                        Utils::triggerDeprecation(new InvalidFixerConfigurationException($fixerName, \sprintf(
+                        Future::triggerDeprecation(new InvalidFixerConfigurationException($fixerName, \sprintf(
                             'Option "sort_algorithm:%s" is deprecated and will be removed in version %d.0.',
                             self::SORT_LENGTH,
                             Application::getMajorVersion() + 1,
@@ -311,7 +312,7 @@ final class OrderedImportsFixer extends AbstractFixer implements ConfigurableFix
                             throw new InvalidOptionsException(\sprintf(
                                 'Missing sort %s %s.',
                                 1 === \count($missing) ? 'type' : 'types',
-                                Utils::naturalLanguageJoin($missing)
+                                Utils::naturalLanguageJoin(array_values($missing))
                             ));
                         }
 
@@ -320,14 +321,16 @@ final class OrderedImportsFixer extends AbstractFixer implements ConfigurableFix
                             throw new InvalidOptionsException(\sprintf(
                                 'Unknown sort %s %s.',
                                 1 === \count($unknown) ? 'type' : 'types',
-                                Utils::naturalLanguageJoin($unknown)
+                                Utils::naturalLanguageJoin(array_values($unknown))
                             ));
                         }
                     }
 
                     return true;
                 }])
-                ->setDefault(null) // @TODO 4.0 set to ['class', 'function', 'const']
+                ->setDefault(
+                    Future::getV4OrV3(['class', 'function', 'const'], null)
+                )
                 ->getOption(),
             (new FixerOptionBuilder('case_sensitive', 'Whether the sorting should be case sensitive.'))
                 ->setAllowedTypes(['bool'])

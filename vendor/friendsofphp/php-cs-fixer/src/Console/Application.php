@@ -24,10 +24,10 @@ use PhpCsFixer\Console\Command\SelfUpdateCommand;
 use PhpCsFixer\Console\Command\WorkerCommand;
 use PhpCsFixer\Console\SelfUpdate\GithubClient;
 use PhpCsFixer\Console\SelfUpdate\NewVersionChecker;
+use PhpCsFixer\Future;
 use PhpCsFixer\PharChecker;
 use PhpCsFixer\Runner\Parallel\WorkerException;
 use PhpCsFixer\ToolInfo;
-use PhpCsFixer\Utils;
 use Symfony\Component\Console\Application as BaseApplication;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Command\CompleteCommand;
@@ -48,8 +48,8 @@ use Symfony\Component\Console\Output\OutputInterface;
 final class Application extends BaseApplication
 {
     public const NAME = 'PHP CS Fixer';
-    public const VERSION = '3.87.1';
-    public const VERSION_CODENAME = 'Alexander';
+    public const VERSION = '3.89.2';
+    public const VERSION_CODENAME = 'Folding Bike';
 
     /**
      * @readonly
@@ -102,6 +102,7 @@ final class Application extends BaseApplication
             $warningsDetector = new WarningsDetector($this->toolInfo);
             $warningsDetector->detectOldVendor();
             $warningsDetector->detectOldMajor();
+            $warningsDetector->detectHigherPhpVersion();
             $warningsDetector->detectNonMonolithic();
             $warnings = $warningsDetector->getWarnings();
 
@@ -119,7 +120,7 @@ final class Application extends BaseApplication
             null !== $stdErr
             && $output->getVerbosity() >= OutputInterface::VERBOSITY_VERBOSE
         ) {
-            $triggeredDeprecations = Utils::getTriggeredDeprecations();
+            $triggeredDeprecations = Future::getTriggeredDeprecations();
 
             if (\count($triggeredDeprecations) > 0) {
                 $stdErr->writeln('');

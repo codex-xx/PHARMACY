@@ -12,18 +12,16 @@ $routes->get('login', 'Auth::login');
 $routes->post('login', 'Auth::attempt');
 $routes->get('logout', 'Auth::logout');
 
-// Registration & Phone Verification
+// Registration
 $routes->get('register', 'Auth::register');
 $routes->post('register', 'Auth::registerPost');
-$routes->get('verify-phone', 'Auth::verifyPhone');
-$routes->post('verify-phone', 'Auth::verifyPhonePost');
-$routes->post('verify-phone/resend', 'Auth::resendVerificationCode');
 
 // Password reset
 $routes->get('forgot-password', 'Auth::forgotPassword');
 $routes->post('forgot-password', 'Auth::forgotPasswordPost');
-$routes->get('reset-password/(:any)', 'Auth::resetPassword/$1');
-$routes->post('reset-password/(:any)', 'Auth::resetPasswordPost/$1');
+$routes->get('reset-password/(:any)', 'Auth::validateResetToken/$1');
+$routes->get('reset-password', 'Auth::resetPassword');
+$routes->post('reset-password', 'Auth::resetPasswordPost');
 
 // Dashboard
 $routes->get('dashboard', 'Dashboard::index');
@@ -43,6 +41,9 @@ $routes->get('reports', 'Reports::index');
 // Chat (AJAX)
 $routes->get('chat/fetch', 'Chat::fetch');
 $routes->post('chat/send', 'Chat::send');
+
+// Debug
+$routes->get('debug/test-env', 'Debug::testEnv');
 
 $routes->group('api', ['namespace' => 'App\Controllers\Api'], function($routes) {
     $routes->get('barcode/generate/(:any)', 'BarcodeController::generate/$1');

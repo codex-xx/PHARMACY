@@ -29,11 +29,6 @@
 								<input type="email" class="form-control" id="email" name="email" value="<?php echo old('email'); ?>" required>
 							</div>
 							<div class="mb-3">
-								<label for="phone" class="form-label">Phone</label>
-								<input type="tel" class="form-control" id="phone" name="phone" value="<?php echo old('phone'); ?>" required>
-								<div class="form-text">We'll send a verification code to this number.</div>
-							</div>
-							<div class="mb-3">
 								<label for="password" class="form-label">Password</label>
 								<input type="password" class="form-control" id="password" name="password" required>
 							</div>

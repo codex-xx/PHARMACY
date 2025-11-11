@@ -15,6 +15,7 @@ declare(strict_types=1);
 namespace PhpCsFixer\RuleSet;
 
 use PhpCsFixer\ConfigurationException\InvalidFixerConfigurationException;
+use PhpCsFixer\Future;
 use PhpCsFixer\Utils;
 
 /**
@@ -134,12 +135,12 @@ final class RuleSet implements RuleSetInterface
     {
         $ruleSet = RuleSets::getSetDefinition($setName);
 
-        if ($ruleSet instanceof DeprecatedRuleSetDescriptionInterface) {
+        if ($ruleSet instanceof DeprecatedRuleSetDefinitionInterface) {
             $messageEnd = [] === $ruleSet->getSuccessorsNames()
                 ? 'No replacement available'
                 : \sprintf('Use %s instead', Utils::naturalLanguageJoin($ruleSet->getSuccessorsNames()));
 
-            Utils::triggerDeprecation(new \RuntimeException("Rule set \"{$setName}\" is deprecated. {$messageEnd}."));
+            Future::triggerDeprecation(new \RuntimeException("Rule set \"{$setName}\" is deprecated. {$messageEnd}."));
         }
 
         $rules = $ruleSet->getRules();

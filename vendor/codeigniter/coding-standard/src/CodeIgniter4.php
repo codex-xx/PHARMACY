@@ -247,6 +247,7 @@ final class CodeIgniter4 extends AbstractRuleset
             'method_chaining_indentation'            => true,
             'modernize_strpos'                       => ['modernize_stripos' => true],
             'modernize_types_casting'                => true,
+            'modifier_keywords'                      => ['elements' => ['const', 'method', 'property']],
             'multiline_comment_opening_closing'      => true,
             'multiline_promoted_properties'          => false,
             'multiline_string_to_heredoc'            => false,
@@ -478,8 +479,9 @@ final class CodeIgniter4 extends AbstractRuleset
             'phpdoc_no_access'    => true,
             'phpdoc_no_alias_tag' => [
                 'replacements' => [
-                    'type' => 'var',
-                    'link' => 'see',
+                    'const' => 'var',
+                    'link'  => 'see',
+                    'type'  => 'var',
                 ],
             ],
             'phpdoc_no_empty_return'       => false,
@@ -546,6 +548,7 @@ final class CodeIgniter4 extends AbstractRuleset
             'phpdoc_single_line_var_spacing'                => true,
             'phpdoc_summary'                                => false,
             'phpdoc_tag_casing'                             => ['tags' => ['inheritDoc']],
+            'phpdoc_tag_no_named_arguments'                 => false,
             'phpdoc_tag_type'                               => ['tags' => ['inheritDoc' => 'inline']],
             'phpdoc_to_comment'                             => false,
             'phpdoc_to_param_type'                          => false,
@@ -700,7 +703,6 @@ final class CodeIgniter4 extends AbstractRuleset
             ],
             'unary_operator_spaces'           => ['only_dec_inc' => false],
             'use_arrow_functions'             => true,
-            'visibility_required'             => ['elements' => ['const', 'method', 'property']],
             'void_return'                     => false, // changes method signature
             'whitespace_after_comma_in_array' => ['ensure_single_space' => true],
             'yield_from_array_to_yields'      => false,

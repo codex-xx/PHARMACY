@@ -12,24 +12,24 @@
 			<div class="col-12 col-md-6 col-lg-4">
 				<div class="card shadow-sm">
 					<div class="card-body">
-						<h3 class="mb-4 text-center">Reset Password</h3>
-						<?php $error = session()->getFlashdata('error'); if ($error): ?>
-							<div class="alert alert-danger" role="alert"><?php echo esc($error); ?></div>
-						<?php endif; ?>
-						<form action="<?php echo site_url('reset-password/' . esc($token)); ?>" method="post">
-							<div class="mb-3">
-								<label for="password" class="form-label">New Password</label>
-								<input type="password" class="form-control" id="password" name="password" required>
-							</div>
-							<div class="mb-3">
-								<label for="password_confirm" class="form-label">Confirm Password</label>
-								<input type="password" class="form-control" id="password_confirm" name="password_confirm" required>
-							</div>
-							<button type="submit" class="btn btn-primary w-100">Update Password</button>
-							<div class="mt-3 text-center">
-								<a href="<?php echo site_url('login'); ?>">Back to Login</a>
-							</div>
-						</form>
+					<h3 class="mb-4 text-center">Reset Password</h3>
+					<?php $error = session()->getFlashdata('error'); if ($error): ?>
+						<div class="alert alert-danger" role="alert"><?php echo esc($error); ?></div>
+					<?php endif; ?>
+					<form action="<?php echo site_url('reset-password'); ?>" method="post">
+						<div class="mb-3">
+							<label for="password" class="form-label">New Password</label>
+							<input type="password" class="form-control" id="password" name="password" required>
+						</div>
+						<div class="mb-3">
+							<label for="password_confirm" class="form-label">Confirm Password</label>
+							<input type="password" class="form-control" id="password_confirm" name="password_confirm" required>
+						</div>
+						<button type="submit" class="btn btn-primary w-100">Update Password</button>
+						<div class="mt-3 text-center">
+							<a href="<?php echo site_url('login'); ?>">Back to Login</a>
+						</div>
+					</form>
 					</div>
 				</div>
 			</div>

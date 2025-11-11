@@ -25,19 +25,12 @@ class Auth extends BaseController
         $user = $userModel->where('username', $username)->first();
 
         if ($user && password_verify($password, $user['password_hash'])) {
-            // Block login until phone is verified
-            if (empty($user['phone_verified_at'])) {
-                $session->set('pending_phone_verify_user_id', $user['id']);
-                $session->setFlashdata('error', 'Please verify your phone number before logging in.');
-                return redirect()->to('/verify-phone');
-            }
             $session->set('user', [
                 'id' => $user['id'],
                 'username' => $user['username'],
                 'role' => $user['role'],
                 'logged_in' => true,
             ]);
-            // Role-based landing pages if desired; both go to /dashboard for now
             return redirect()->to('/dashboard');
         }
 
@@ -64,7 +57,6 @@ class Auth extends BaseController
 
         $username = trim((string) $request->getPost('username'));
         $email = trim((string) $request->getPost('email'));
-        $phone = trim((string) $request->getPost('phone'));
         $password = (string) $request->getPost('password');
         $passwordConfirm = (string) $request->getPost('password_confirm');
 
@@ -74,105 +66,21 @@ class Auth extends BaseController
         }
 
         $userModel = new \App\Models\UserModel();
-        $existing = $userModel->where('username', $username)->orWhere('email', $email)->orWhere('phone', $phone)->first();
+        $existing = $userModel->where('username', $username)->orWhere('email', $email)->first();
         if ($existing) {
-            $session->setFlashdata('error', 'Username, email, or phone already exists');
+            $session->setFlashdata('error', 'Username or email already exists');
             return redirect()->back()->withInput();
         }
 
-        $verificationCode = (string) random_int(100000, 999999);
-
-        $userId = $userModel->insert([
+        $userModel->insert([
             'username' => $username,
             'email' => $email ?: null,
-            'phone' => $phone ?: null,
             'password_hash' => password_hash($password, PASSWORD_DEFAULT),
             'role' => 'staff',
-            'phone_verification_code' => $verificationCode,
-            'phone_verified_at' => null,
-        ], true);
-
-        // Send SMS (placeholder logs) and email the verification code
-        $this->sendSms($phone, "Your verification code is: {$verificationCode}");
-        if ($email) {
-            $this->sendEmail(
-                $email,
-                'Verify your phone number',
-                "Use this code to verify your phone number: {$verificationCode}"
-            );
-        }
-
-        $session->set('pending_phone_verify_user_id', $userId);
-        $session->setFlashdata('success', 'Account created. Enter the code sent to your phone to verify.');
-        return redirect()->to('/verify-phone');
-    }
-
-    public function verifyPhone(): string
-    {
-        return view('verify_phone');
-    }
-
-    public function verifyPhonePost(): RedirectResponse
-    {
-        $request = service('request');
-        $session = session();
-        $userId = (int) ($session->get('pending_phone_verify_user_id') ?? 0);
-        $code = trim((string) $request->getPost('code'));
-
-        if (!$userId) {
-            $session->setFlashdata('error', 'No phone verification session found.');
-            return redirect()->to('/login');
-        }
-
-        $userModel = new \App\Models\UserModel();
-        $user = $userModel->find($userId);
-        if (!$user) {
-            $session->setFlashdata('error', 'User not found.');
-            return redirect()->to('/login');
-        }
-
-        if (($user['phone_verification_code'] ?? '') !== $code) {
-            $session->setFlashdata('error', 'Invalid verification code.');
-            return redirect()->back();
-        }
-
-        $userModel->update($userId, [
-            'phone_verification_code' => null,
-            'phone_verified_at' => date('Y-m-d H:i:s'),
         ]);
 
-        $session->remove('pending_phone_verify_user_id');
-        $session->setFlashdata('success', 'Phone verified. You can now log in.');
+        $session->setFlashdata('success', 'Account created successfully. You can now log in.');
         return redirect()->to('/login');
-    }
-
-    public function resendVerificationCode(): RedirectResponse
-    {
-        $session = session();
-        $userId = (int) ($session->get('pending_phone_verify_user_id') ?? 0);
-        if (!$userId) {
-            $session->setFlashdata('error', 'No verification session found.');
-            return redirect()->to('/login');
-        }
-        $userModel = new \App\Models\UserModel();
-        $user = $userModel->find($userId);
-        if (!$user) {
-            $session->setFlashdata('error', 'User not found.');
-            return redirect()->to('/login');
-        }
-
-        $verificationCode = (string) random_int(100000, 999999);
-        $userModel->update($userId, ['phone_verification_code' => $verificationCode]);
-        $this->sendSms($user['phone'] ?? null, "Your verification code is: {$verificationCode}");
-        if (!empty($user['email'])) {
-            $this->sendEmail(
-                $user['email'],
-                'Verify your phone number',
-                "Use this code to verify your phone number: {$verificationCode}"
-            );
-        }
-        $session->setFlashdata('success', 'Verification code resent.');
-        return redirect()->to('/verify-phone');
     }
 
     public function forgotPassword(): string
@@ -201,10 +109,42 @@ class Auth extends BaseController
         ]);
 
         $resetUrl = site_url('reset-password/' . $token);
-        $subject = 'Password Reset Request';
-        $body = 'Click the link to reset your password: ' . $resetUrl;
+        $subject = 'Password Reset Request - Pharmacy POS';
+        
+        $body = "
+<html>
+  <body style='font-family: Arial, sans-serif; line-height: 1.6; color: #333;'>
+    <div style='max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 5px;'>
+      <h2 style='color: #007bff; text-align: center;'>Pharmacy POS</h2>
+      <hr style='border: none; border-top: 1px solid #ddd;'>
+      
+      <h3>Password Reset Request</h3>
+      
+      <p>Hello <strong>{$user['username']}</strong>,</p>
+      
+      <p>We received a request to reset your password. Click the button below to reset it:</p>
+      
+      <div style='text-align: center; margin: 30px 0;'>
+        <a href='{$resetUrl}' style='background-color: #007bff; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block;'>Reset Password</a>
+      </div>
+      
+      <p>Or copy and paste this link in your browser:</p>
+      <p style='word-break: break-all; background-color: #f5f5f5; padding: 10px; border-radius: 3px;'>{$resetUrl}</p>
+      
+      <p><strong>Note:</strong> This link will expire in 30 minutes for security reasons.</p>
+      
+      <p>If you did not request this password reset, please ignore this email.</p>
+      
+      <hr style='border: none; border-top: 1px solid #ddd;'>
+      <p style='font-size: 12px; color: #666; text-align: center;'>
+        Pharmacy POS &copy; 2025. All rights reserved.
+      </p>
+    </div>
+  </body>
+</html>
+        ";
 
-        $sent = $this->sendEmail($email, $subject, $body);
+        $sent = $this->sendEmail($email, $subject, $body, true);
         if (!$sent) {
             $session->setFlashdata('error', 'Unable to send reset email. Please contact support.');
             return redirect()->back()->withInput();
@@ -214,25 +154,60 @@ class Auth extends BaseController
         return redirect()->to('/login');
     }
 
-    public function resetPassword(string $token): string
+    public function validateResetToken(string $token): RedirectResponse
     {
         $userModel = new \App\Models\UserModel();
         $user = $userModel->where('password_reset_token', $token)
             ->where('password_reset_expires_at >=', date('Y-m-d H:i:s'))
             ->first();
+        
         if (!$user) {
-            session()->setFlashdata('error', 'Invalid or expired reset token.');
+            session()->setFlashdata('error', 'Invalid or expired reset link.');
             return redirect()->to('/login');
+        }
+        
+        // Store token in session
+        session()->set('reset_token', $token);
+        
+        // Redirect to clean URL
+        return redirect()->to('/reset-password');
+    }
+
+    public function resetPassword(): string
+    {
+        $session = session();
+        $token = $session->get('reset_token');
+        
+        if (!$token) {
+            $session->setFlashdata('error', 'No valid reset token found. Please request a new password reset.');
+            return redirect()->to('/login')->send();
+        }
+
+        $userModel = new \App\Models\UserModel();
+        $user = $userModel->where('password_reset_token', $token)
+            ->where('password_reset_expires_at >=', date('Y-m-d H:i:s'))
+            ->first();
+        if (!$user) {
+            $session->setFlashdata('error', 'Invalid or expired reset token.');
+            $session->remove('reset_token');
+            return redirect()->to('/login')->send();
         }
         return view('reset_password', ['token' => $token]);
     }
 
-    public function resetPasswordPost(string $token): RedirectResponse
+    public function resetPasswordPost(): RedirectResponse
     {
         $request = service('request');
         $session = session();
+        $token = $session->get('reset_token');
         $password = (string) $request->getPost('password');
         $passwordConfirm = (string) $request->getPost('password_confirm');
+        
+        if (!$token) {
+            $session->setFlashdata('error', 'Invalid reset token. Please request a new password reset.');
+            return redirect()->to('/login');
+        }
+        
         if ($password !== $passwordConfirm) {
             $session->setFlashdata('error', 'Passwords do not match');
             return redirect()->back();
@@ -244,6 +219,7 @@ class Auth extends BaseController
             ->first();
         if (!$user) {
             $session->setFlashdata('error', 'Invalid or expired reset token.');
+            $session->remove('reset_token');
             return redirect()->to('/login');
         }
 
@@ -252,19 +228,15 @@ class Auth extends BaseController
             'password_reset_token' => null,
             'password_reset_expires_at' => null,
         ]);
+        
+        // Clear the session token
+        $session->remove('reset_token');
+        
         $session->setFlashdata('success', 'Password updated. You can now log in.');
         return redirect()->to('/login');
     }
 
-    private function sendSms(?string $phone, string $message): void
-    {
-        if (!$phone) {
-            return;
-        }
-        log_message('info', 'SMS to ' . $phone . ': ' . $message);
-    }
-
-    private function sendEmail(string $toEmail, string $subject, string $body): bool
+    private function sendEmail(string $toEmail, string $subject, string $body, bool $isHtml = false): bool
     {
         $mail = new PHPMailer(true);
         try {
@@ -287,10 +259,12 @@ class Auth extends BaseController
 
             $mail->setFrom($fromEmail, $fromName);
             $mail->addAddress($toEmail);
-            $mail->isHTML(false);
+            $mail->isHTML($isHtml);
             $mail->Subject = $subject;
             $mail->Body = $body;
-            $mail->AltBody = $body;
+            if (!$isHtml) {
+                $mail->AltBody = $body;
+            }
             return $mail->send();
         } catch (PHPMailerException $e) {
             log_message('error', 'PHPMailer error: ' . $e->getMessage());

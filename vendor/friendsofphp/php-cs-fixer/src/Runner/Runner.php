@@ -27,6 +27,7 @@ use PhpCsFixer\Error\ErrorsManager;
 use PhpCsFixer\Error\SourceExceptionFactory;
 use PhpCsFixer\FileReader;
 use PhpCsFixer\Fixer\FixerInterface;
+use PhpCsFixer\Future;
 use PhpCsFixer\Linter\LinterInterface;
 use PhpCsFixer\Linter\LintingException;
 use PhpCsFixer\Linter\LintingResultInterface;
@@ -42,7 +43,6 @@ use PhpCsFixer\Runner\Parallel\ProcessIdentifier;
 use PhpCsFixer\Runner\Parallel\ProcessPool;
 use PhpCsFixer\Runner\Parallel\WorkerException;
 use PhpCsFixer\Tokenizer\Tokens;
-use PhpCsFixer\Utils;
 use React\EventLoop\StreamSelectLoop;
 use React\Socket\ConnectionInterface;
 use React\Socket\TcpServer;
@@ -241,7 +241,15 @@ final class Runner
                 }
 
                 $identifier = ProcessIdentifier::fromRaw($data['identifier']);
-                $process = $processPool->getProcess($identifier);
+
+                // Avoid race condition where worker tries to establish connection,
+                // but runner already ended all processes because `stop-on-violation` mode was enabled.
+                try {
+                    $process = $processPool->getProcess($identifier);
+                } catch (ParallelisationException $e) {
+                    return;
+                }
+
                 $process->bindConnection($decoder, $encoder);
                 $fileChunk = $getFileChunk();
 
@@ -431,7 +439,7 @@ final class Runner
         $tokens = Tokens::fromCode($old);
 
         if (
-            Utils::isFutureModeEnabled() // @TODO 4.0 drop this line
+            Future::isFutureModeEnabled() // @TODO 4.0 drop this line
             && !filter_var(getenv('PHP_CS_FIXER_NON_MONOLITHIC'), \FILTER_VALIDATE_BOOL)
             && !$tokens->isMonolithicPhp()
         ) {

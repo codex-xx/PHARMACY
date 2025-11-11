@@ -15,9 +15,6 @@ class UserModel extends Model
         'password_hash',
         'role',
         'email',
-        'phone',
-        'phone_verification_code',
-        'phone_verified_at',
         'password_reset_token',
         'password_reset_expires_at',
     ];
