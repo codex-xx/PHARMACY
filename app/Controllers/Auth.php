@@ -59,6 +59,7 @@ class Auth extends BaseController
         $email = trim((string) $request->getPost('email'));
         $password = (string) $request->getPost('password');
         $passwordConfirm = (string) $request->getPost('password_confirm');
+        $phone = trim((string) $request->getPost('phone'));
 
         if ($password !== $passwordConfirm) {
             $session->setFlashdata('error', 'Passwords do not match');
@@ -72,13 +73,104 @@ class Auth extends BaseController
             return redirect()->back()->withInput();
         }
 
-        $userModel->insert([
+        // Validate phone (basic): must be 11 digits and start with 09
+        $cleanPhone = preg_replace('/[^0-9]/', '', $phone);
+        if (!preg_match('/^09\d{9}$/', $cleanPhone)) {
+            $session->setFlashdata('error', 'Invalid phone number. Use 11 digits starting with 09.');
+            return redirect()->back()->withInput();
+        }
+
+        // Generate verification code and store pending registration in session
+        $code = random_int(100000, 999999);
+        $pending = [
             'username' => $username,
             'email' => $email ?: null,
             'password_hash' => password_hash($password, PASSWORD_DEFAULT),
+            'phone' => $cleanPhone,
+            'code' => (string) $code,
+            'expires_at' => date('Y-m-d H:i:s', time() + 60 * 10), // 10 minutes
+        ];
+
+        $session->set('pending_registration', $pending);
+
+        // Send SMS with verification code
+        try {
+            $sms = service('sms');
+            $message = "Your Pharmacy verification code is: {$code}. It will expire in 10 minutes.";
+            $sendResult = $sms->send($cleanPhone, $message);
+
+            if (!$sendResult['success']) {
+                // keep pending but notify user
+                $session->setFlashdata('error', 'Unable to send verification code via SMS: ' . ($sendResult['message'] ?? ''));
+                return redirect()->back()->withInput();
+            }
+        } catch (\Exception $e) {
+            $session->setFlashdata('error', 'SMS sending failed: ' . $e->getMessage());
+            return redirect()->back()->withInput();
+        }
+
+        return redirect()->to('/register/verify');
+    }
+
+    /**
+     * Show verification form for pending registration
+     */
+    public function verifyRegister(): string
+    {
+        $session = session();
+        $pending = $session->get('pending_registration');
+        if (!$pending) {
+            $session->setFlashdata('error', 'No pending registration found. Please register first.');
+            return redirect()->to('/register');
+        }
+
+        return view('register_verify', ['phone' => $pending['phone']]);
+    }
+
+    /**
+     * Handle verification code submission and create account
+     */
+    public function verifyRegisterPost(): RedirectResponse
+    {
+        $request = service('request');
+        $session = session();
+
+        $code = trim((string) $request->getPost('code'));
+        $pending = $session->get('pending_registration');
+        if (!$pending) {
+            $session->setFlashdata('error', 'No pending registration found. Please register first.');
+            return redirect()->to('/register');
+        }
+
+        if ($pending['expires_at'] < date('Y-m-d H:i:s')) {
+            $session->remove('pending_registration');
+            $session->setFlashdata('error', 'Verification code expired. Please register again.');
+            return redirect()->to('/register');
+        }
+
+        if (!hash_equals((string) $pending['code'], (string) $code)) {
+            $session->setFlashdata('error', 'Invalid verification code.');
+            return redirect()->back()->withInput();
+        }
+
+        // Create user
+        $userModel = new \App\Models\UserModel();
+        $existing = $userModel->where('username', $pending['username'])->orWhere('email', $pending['email'])->first();
+        if ($existing) {
+            $session->remove('pending_registration');
+            $session->setFlashdata('error', 'Username or email already exists');
+            return redirect()->to('/register');
+        }
+
+        $userModel->insert([
+            'username' => $pending['username'],
+            'email' => $pending['email'] ?: null,
+            'password_hash' => $pending['password_hash'],
             'role' => 'staff',
+            'phone' => $pending['phone'],
         ]);
 
+        $session->remove('pending_registration');
         $session->setFlashdata('success', 'Account created successfully. You can now log in.');
         return redirect()->to('/login');
     }

@@ -15,6 +15,9 @@ $routes->get('logout', 'Auth::logout');
 // Registration
 $routes->get('register', 'Auth::register');
 $routes->post('register', 'Auth::registerPost');
+// Verification for registration
+$routes->get('register/verify', 'Auth::verifyRegister');
+$routes->post('register/verify', 'Auth::verifyRegisterPost');
 
 // Password reset
 $routes->get('forgot-password', 'Auth::forgotPassword');
@@ -41,6 +44,26 @@ $routes->get('reports', 'Reports::index');
 // Chat (AJAX)
 $routes->get('chat/fetch', 'Chat::fetch');
 $routes->post('chat/send', 'Chat::send');
+
+// SMS Gateway Routes
+$routes->group('sms', function($routes) {
+    $routes->post('send', 'SmsController::send');
+    $routes->post('bulk', 'SmsController::sendBulk');
+    $routes->get('logs', 'SmsController::getLogs');
+    $routes->get('config', 'SmsController::getConfig');
+    $routes->get('test', 'SmsController::test');
+    $routes->get('status', 'SmsController::status');
+});
+
+// SMS Verification & Testing Routes
+$routes->group('sms-verify', function($routes) {
+    $routes->get('/', 'SmsVerificationController::index');
+    $routes->get('check', 'SmsVerificationController::fullCheck');
+    $routes->get('dashboard', 'SmsVerificationController::dashboard');
+    $routes->post('test-send', 'SmsVerificationController::testSend');
+    $routes->get('logs', 'SmsVerificationController::getLogs');
+    $routes->get('report', 'SmsVerificationController::generateReport');
+});
 
 // Debug
 $routes->get('debug/test-env', 'Debug::testEnv');

@@ -19,6 +19,29 @@ use CodeIgniter\Config\BaseService;
  */
 class Services extends BaseService
 {
+    /**
+     * SMS Service for sending SMS via modem gateway
+     *
+     * @param bool $getShared Whether to return shared instance
+     * @return \App\Libraries\SmsService
+     */
+    public static function sms($getShared = true)
+    {
+        if ($getShared) {
+            return static::getSharedInstance('sms');
+        }
+
+        // Configuration for SMS service
+        $config = [
+            'gatewayUrl' => 'http://192.168.1.251/default/en_US/send.html?',
+            'username'   => 'admin',
+            'password'   => '285952',
+            'defaultLine' => '1', // 1 = PLDT/Globe, 2 = Smart/TNT/Sun, 3 = DITO
+        ];
+
+        return new \App\Libraries\SmsService($config);
+    }
+
     /*
      * public static function example($getShared = true)
      * {

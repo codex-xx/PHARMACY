@@ -21,6 +21,11 @@
 						<?php endif; ?>
 						<form action="<?php echo site_url('register'); ?>" method="post">
 							<div class="mb-3">
+								<label for="phone" class="form-label">Phone Number</label>
+								<input type="tel" pattern="0[0-9]{10}" class="form-control" id="phone" name="phone" value="<?php echo old('phone'); ?>" placeholder="" required>
+								<div class="form-text">Enter 11-digit Philippines mobile number starting with 09.</div>
+							</div>
+							<div class="mb-3">
 								<label for="username" class="form-label">Username</label>
 								<input type="text" class="form-control" id="username" name="username" value="<?php echo old('username'); ?>" required>
 							</div>

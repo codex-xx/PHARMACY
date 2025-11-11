@@ -31,3 +31,34 @@ Stack trace:
 #10 C:\xampp\htdocs\PHARMACY\system\Boot.php(133): CodeIgniter\Boot::runCommand(Object(CodeIgniter\CLI\Console))
 #11 C:\xampp\htdocs\PHARMACY\spark(87): CodeIgniter\Boot::bootSpark(Object(Config\Paths))
 #12 {main}
+ERROR - 2025-11-11 12:42:46 --> mysqli_sql_exception: Can't DROP INDEX `users_phone_unique`; check that it exists in C:\xampp\htdocs\PHARMACY\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 C:\xampp\htdocs\PHARMACY\system\Database\MySQLi\Connection.php(327): mysqli->query('DROP INDEX user...', 0)
+#1 C:\xampp\htdocs\PHARMACY\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('DROP INDEX user...')
+#2 C:\xampp\htdocs\PHARMACY\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('DROP INDEX user...')
+#3 C:\xampp\htdocs\PHARMACY\app\Database\Migrations\2025-11-11-000001_RemoveSmsFieldsFromUsers.php(27): CodeIgniter\Database\BaseConnection->query('DROP INDEX user...')
+#4 C:\xampp\htdocs\PHARMACY\system\Database\MigrationRunner.php(876): App\Database\Migrations\RemoveSmsFieldsFromUsers->up()
+#5 C:\xampp\htdocs\PHARMACY\system\Database\MigrationRunner.php(182): CodeIgniter\Database\MigrationRunner->migrate('up', Object(stdClass))
+#6 C:\xampp\htdocs\PHARMACY\system\Commands\Database\Migrate.php(85): CodeIgniter\Database\MigrationRunner->latest(NULL)
+#7 C:\xampp\htdocs\PHARMACY\system\CLI\Commands.php(74): CodeIgniter\Commands\Database\Migrate->run(Array)
+#8 C:\xampp\htdocs\PHARMACY\system\CLI\Console.php(47): CodeIgniter\CLI\Commands->run('migrate', Array)
+#9 C:\xampp\htdocs\PHARMACY\system\Boot.php(388): CodeIgniter\CLI\Console->run()
+#10 C:\xampp\htdocs\PHARMACY\system\Boot.php(133): CodeIgniter\Boot::runCommand(Object(CodeIgniter\CLI\Console))
+#11 C:\xampp\htdocs\PHARMACY\spark(87): CodeIgniter\Boot::bootSpark(Object(Config\Paths))
+#12 {main}
+ERROR - 2025-11-11 12:48:00 --> mysqli_sql_exception: Duplicate entry 'admin' for key 'username' in C:\xampp\htdocs\PHARMACY\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 C:\xampp\htdocs\PHARMACY\system\Database\MySQLi\Connection.php(327): mysqli->query('INSERT INTO `us...', 0)
+#1 C:\xampp\htdocs\PHARMACY\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('INSERT INTO `us...')
+#2 C:\xampp\htdocs\PHARMACY\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('INSERT INTO `us...')
+#3 C:\xampp\htdocs\PHARMACY\system\Database\BaseBuilder.php(1841): CodeIgniter\Database\BaseConnection->query('INSERT INTO `us...', NULL, false)
+#4 C:\xampp\htdocs\PHARMACY\system\Database\BaseBuilder.php(2230): CodeIgniter\Database\BaseBuilder->batchExecute('_insertBatch', 100)
+#5 C:\xampp\htdocs\PHARMACY\app\Database\Seeds\UserSeeder.php(32): CodeIgniter\Database\BaseBuilder->insertBatch(Array)
+#6 C:\xampp\htdocs\PHARMACY\system\Database\Seeder.php(149): App\Database\Seeds\UserSeeder->run()
+#7 C:\xampp\htdocs\PHARMACY\system\Commands\Database\Seed.php(79): CodeIgniter\Database\Seeder->call('App\\Database\\Se...')
+#8 C:\xampp\htdocs\PHARMACY\system\CLI\Commands.php(74): CodeIgniter\Commands\Database\Seed->run(Array)
+#9 C:\xampp\htdocs\PHARMACY\system\CLI\Console.php(47): CodeIgniter\CLI\Commands->run('db:seed', Array)
+#10 C:\xampp\htdocs\PHARMACY\system\Boot.php(388): CodeIgniter\CLI\Console->run()
+#11 C:\xampp\htdocs\PHARMACY\system\Boot.php(133): CodeIgniter\Boot::runCommand(Object(CodeIgniter\CLI\Console))
+#12 C:\xampp\htdocs\PHARMACY\spark(87): CodeIgniter\Boot::bootSpark(Object(Config\Paths))
+#13 {main}
