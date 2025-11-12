@@ -73,3 +73,6 @@ $routes->group('api', ['namespace' => 'App\Controllers\Api'], function($routes) 
     $routes->get('barcode/find/(:any)', 'BarcodeController::find/$1');
     $routes->post('barcode/create', 'BarcodeController::create');
 });
+
+// Sales endpoints (checkout)
+$routes->post('sales/checkout', 'Sales::checkout');

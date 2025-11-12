@@ -44,11 +44,12 @@
 			<div class="card-header">Top Products (by qty sold this month)</div>
 			<div class="card-body p-0">
 				<table class="table table-striped mb-0">
-					<thead><tr><th>Product ID</th><th class="text-end">Qty Sold</th></tr></thead>
+					<thead><tr><th>Product</th><th class="text-end">Price</th><th class="text-end">Qty Sold</th></tr></thead>
 					<tbody>
 						<?php foreach ($topProducts as $row): ?>
 						<tr>
-							<td><?php echo (int)$row['product_id']; ?></td>
+							<td><?php echo esc($row['name'] ?? ''); ?> <small class="text-muted">(#<?php echo (int)$row['product_id']; ?>)</small></td>
+							<td class="text-end">$<?php echo number_format((float)($row['price'] ?? 0), 2); ?></td>
 							<td class="text-end"><?php echo (int)$row['qty_sold']; ?></td>
 						</tr>
 						<?php endforeach; ?>

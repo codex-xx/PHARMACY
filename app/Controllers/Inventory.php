@@ -16,10 +16,12 @@ class Inventory extends BaseController
 
         $lowStock = $model->where('stock <= reorder_threshold')->orderBy('stock', 'ASC')->findAll(50);
         $expiring = $model->where('expiry_date >=', $today)->where('expiry_date <=', $soon)->orderBy('expiry_date', 'ASC')->findAll(50);
+        $allProducts = $model->orderBy('name', 'ASC')->findAll();
 
         return view('inventory/index', [
             'lowStock' => $lowStock,
             'expiring' => $expiring,
+            'allProducts' => $allProducts,
         ]);
     }
 }
