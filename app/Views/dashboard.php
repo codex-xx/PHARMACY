@@ -19,98 +19,191 @@
 	.cart-table td, .cart-table th { vertical-align: middle; }
 	</style>
 </head>
-<body>
-	<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-		<div class="container-fluid">
-			<a class="navbar-brand" href="#">Pharmacy POS</a>
-			<div class="d-flex">
-				<span class="navbar-text me-3">Hello, <?php echo esc($username); ?></span>
-				<a href="<?php echo site_url('logout'); ?>" class="btn btn-outline-light btn-sm">Logout</a>
-			</div>
-		</div>
-	</nav>
+<body data-bs-theme="<?php echo session()->get('theme') ?? 'light'; ?>">
+	<?php $currentPage = 'dashboard'; ?>
+	<?php $role = session()->get('user')['role'] ?? ''; ?>
+	<?php echo view('partials/sidebar', ['currentPage' => $currentPage, 'role' => $role, 'username' => $username ?? '']); ?>
 
-	<div class="container my-4">
-		<?php $role = session()->get('user')['role'] ?? ''; ?>
-		<?php if ($role === 'admin'): ?>
-			<!-- Admin View -->
-			<div class="row g-4">
-				<div class="col-12 col-lg-6">
-					<div class="card text-center">
-						<div class="card-body py-5">
-							<h4 class="card-title mb-3">Inventory Management</h4>
-							<p class="text-muted">Track stock levels, expiries, and low-stock alerts.</p>
-							<a class="btn btn-warning" href="<?php echo site_url('inventory'); ?>">Open Inventory</a>
-						</div>
-					</div>
-				</div>
-				<div class="col-12 col-lg-6">
-					<div class="card text-center">
-						<div class="card-body py-5">
-							<h4 class="card-title mb-3">Reports & Analytics</h4>
-							<p class="text-muted">View sales, profit, and inventory usage reports.</p>
-							<a class="btn btn-info" href="<?php echo site_url('reports'); ?>">Open Reports</a>
-						</div>
-					</div>
-				</div>
-			</div>
-		<?php else: ?>
-			<!-- Cashier View -->
-			<div class="row g-4">
-				<div class="col-12 col-lg-8">
-					<h5 class="mb-3">Products</h5>
-					<div class="mb-2">
-						<a class="btn btn-sm btn-outline-secondary" href="<?php echo site_url('products'); ?>">Manage Products</a>
-						<a class="btn btn-sm btn-outline-warning" href="<?php echo site_url('inventory'); ?>">Inventory Alerts</a>
-					</div>
-					<div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3" id="products"></div>
-				</div>
-				<div class="col-12 col-lg-4">
-					<h5 class="mb-3">Cart</h5>
-					<div class="card">
-						<div class="card-body">
-							<!-- ✅ Barcode Scanner Input -->
-							<div class="mb-3">
-								<input type="text" id="barcodeInput" 
-									class="form-control form-control-sm" 
-									placeholder="Scan or enter barcode..." autofocus>
-							</div>
-
-							<!-- ✅ Product Preview -->
-							<div id="productPreview" class="mb-3" style="display:none;">
-								<div class="card border-success">
-									<div class="card-body py-2">
-										<h6 id="previewName" class="mb-1"></h6>
-										<div><strong>Price:</strong> $<span id="previewPrice"></span></div>
-										<div><strong>Stock:</strong> <span id="previewStock"></span></div>
-										<button class="btn btn-sm btn-success mt-2" id="addPreviewBtn">Add to Cart</button>
+	<div class="main-content">
+		<div class="container my-4">
+			<?php if ($role === 'admin'): ?>
+				<!-- Admin View -->
+				<h4 class="mb-4 text-primary"><i class="fas fa-cogs me-2"></i>Pharmacy Management Dashboard</h4>
+				<div class="row g-4 mb-4">
+					<!-- Quick Stats -->
+					<div class="col-12">
+						<div class="row g-3">
+							<div class="col-6 col-md-3">
+								<div class="card pharmacy-card text-center">
+									<div class="card-body py-3">
+										<i class="fas fa-boxes fa-2x text-primary mb-2"></i>
+										<div class="fw-bold">$<?php echo number_format($totalInventory ?? 0, 2); ?></div>
+										<small class="text-muted">Inventory Value</small>
 									</div>
 								</div>
 							</div>
-
-							<table class="table table-sm cart-table" id="cartTable">
-								<thead>
-									<tr>
-										<th>Item</th>
-										<th class="text-end">Qty</th>
-										<th class="text-end">Price</th>
-										<th class="text-end">Total</th>
-										<th></th>
-									</tr>
-								</thead>
-								<tbody id="cartBody"></tbody>
-							</table>
-							<div class="d-flex justify-content-between align-items-center">
-								<strong>Grand Total</strong>
-								<h4 class="mb-0" id="grandTotal">$0.00</h4>
+							<div class="col-6 col-md-3">
+								<div class="card pharmacy-card text-center">
+									<div class="card-body py-3">
+										<i class="fas fa-dollar-sign fa-2x text-success mb-2"></i>
+										<div class="fw-bold">$<?php echo number_format($todaySales ?? 0, 2); ?></div>
+										<small class="text-muted">Today's Sales</small>
+									</div>
+								</div>
 							</div>
-							<hr>
-							<button class="btn btn-success w-100" id="checkoutBtn">Checkout</button>
+							<div class="col-6 col-md-3">
+								<div class="card pharmacy-card text-center">
+									<div class="card-body py-3">
+										<i class="fas fa-exclamation-triangle fa-2x text-warning mb-2"></i>
+										<div class="fw-bold"><?php echo $lowStock ?? 0; ?></div>
+										<small class="text-muted">Low Stock Items</small>
+									</div>
+								</div>
+							</div>
+							<div class="col-6 col-md-3">
+								<div class="card pharmacy-card text-center">
+									<div class="card-body py-3">
+										<i class="fas fa-clock fa-2x text-danger mb-2"></i>
+										<div class="fw-bold"><?php echo $expiring ?? 0; ?></div>
+										<small class="text-muted">Expiring Soon</small>
+									</div>
+								</div>
+							</div>
 						</div>
 					</div>
 				</div>
-			</div>
-		<?php endif; ?>
+
+				<!-- Management Tools -->
+				<div class="row g-4">
+					<div class="col-12 col-md-6 col-lg-4">
+						<div class="card pharmacy-card text-center">
+							<div class="card-body py-4">
+								<i class="fas fa-boxes fa-3x text-primary mb-3"></i>
+								<h5 class="card-title mb-3">Inventory Management</h5>
+								<p class="text-muted">Track stock levels, expiries, and low-stock alerts.</p>
+								<a class="btn btn-pharmacy w-100" href="<?php echo site_url('inventory'); ?>"><i class="fas fa-arrow-right me-2"></i>Manage Inventory</a>
+							</div>
+						</div>
+					</div>
+					<div class="col-12 col-md-6 col-lg-4">
+						<div class="card pharmacy-card text-center">
+							<div class="card-body py-4">
+								<i class="fas fa-flask fa-3x text-info mb-3"></i>
+								<h5 class="card-title mb-3">Product Management</h5>
+								<p class="text-muted">Add, edit, and manage pharmacy products.</p>
+								<a class="btn btn-pharmacy w-100" href="<?php echo site_url('products'); ?>"><i class="fas fa-arrow-right me-2"></i>Manage Products</a>
+							</div>
+						</div>
+					</div>
+					<div class="col-12 col-md-6 col-lg-4">
+						<div class="card pharmacy-card text-center">
+							<div class="card-body py-4">
+								<i class="fas fa-chart-bar fa-3x text-success mb-3"></i>
+								<h5 class="card-title mb-3">Reports & Analytics</h5>
+								<p class="text-muted">View sales, profit, and inventory usage reports.</p>
+								<a class="btn btn-pharmacy w-100" href="<?php echo site_url('reports'); ?>"><i class="fas fa-arrow-right me-2"></i>View Reports</a>
+							</div>
+						</div>
+					</div>
+					<div class="col-12">
+						<div class="row justify-content-center g-4">
+							<div class="col-12 col-md-6 col-lg-4 col-xl-3">
+								<div class="card pharmacy-card text-center">
+									<div class="card-body py-4">
+										<i class="fas fa-users fa-3x text-warning mb-3"></i>
+										<h5 class="card-title mb-3">User Management</h5>
+										<p class="text-muted">Manage staff accounts and permissions.</p>
+										<a class="btn btn-pharmacy w-100" href="<?php echo site_url('users'); ?>"><i class="fas fa-arrow-right me-2"></i>Manage Users</a>
+									</div>
+								</div>
+							</div>
+							<div class="col-12 col-md-6 col-lg-4 col-xl-3">
+								<div class="card pharmacy-card text-center">
+									<div class="card-body py-4">
+										<i class="fas fa-shopping-cart fa-3x text-secondary mb-3"></i>
+										<h5 class="card-title mb-3">Sales Overview</h5>
+										<p class="text-muted">Monitor sales transactions and performance.</p>
+										<a class="btn btn-pharmacy w-100" href="<?php echo site_url('sales'); ?>"><i class="fas fa-arrow-right me-2"></i>View Sales</a>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+
+				</div>
+			<?php else: ?>
+				<!-- Cashier View -->
+				<!-- Barcode Scanner Section -->
+				<div class="row g-4 mb-4">
+					<div class="col-12">
+						<div class="card pharmacy-card">
+							<div class="card-body text-center py-4">
+								<h5 class="card-title mb-3">
+									<i class="fas fa-barcode fa-2x text-primary mb-2"></i><br>
+									Quick Scan
+								</h5>
+								<!-- ✅ Barcode Scanner Input -->
+								<div class="d-flex justify-content-center mb-3">
+									<input type="text" id="barcodeInput"
+										class="form-control text-center w-75"
+										style="max-width: 500px; min-width: 300px;"
+										placeholder="Scan barcode or enter product code..." autofocus>
+								</div>
+
+								<!-- ✅ Product Preview -->
+								<div id="productPreview" class="mt-3" style="display:none;">
+									<div class="card border-success mx-auto" style="max-width: 400px;">
+										<div class="card-body py-2">
+											<h6 id="previewName" class="mb-1"></h6>
+											<div><strong>Price:</strong> $<span id="previewPrice"></span></div>
+											<div><strong>Stock:</strong> <span id="previewStock"></span></div>
+											<button class="btn btn-success btn-sm mt-2 w-100" id="addPreviewBtn">Add to Cart</button>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<div class="row g-4">
+					<!-- Products Section -->
+					<div class="col-12 col-lg-7">
+						<h5 class="mb-3">Products</h5>
+						<div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3" id="products"></div>
+					</div>
+
+					<!-- Cart Section -->
+					<div class="col-12 col-lg-5">
+						<h5 class="mb-3">Cart</h5>
+						<div class="card pharmacy-card">
+							<div class="card-body d-flex flex-column" style="max-height: 80vh;">
+								<div class="flex-grow-1 overflow-auto">
+									<table class="table table-sm cart-table" id="cartTable">
+										<thead>
+											<tr>
+												<th>Item</th>
+												<th class="text-end">Qty</th>
+												<th class="text-end">Price</th>
+												<th class="text-end">Total</th>
+												<th></th>
+											</tr>
+										</thead>
+										<tbody id="cartBody"></tbody>
+									</table>
+								</div>
+								<hr class="my-2">
+								<div class="d-flex justify-content-between align-items-center mb-2">
+									<strong>Grand Total</strong>
+									<h4 class="mb-0" id="grandTotal">$0.00</h4>
+								</div>
+								<button class="btn btn-pharmacy w-100" id="checkoutBtn">Checkout</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			<?php endif; ?>
+		</div>
 	</div>
 
 	<script>

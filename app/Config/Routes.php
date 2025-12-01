@@ -74,5 +74,19 @@ $routes->group('api', ['namespace' => 'App\Controllers\Api'], function($routes) 
     $routes->post('barcode/create', 'BarcodeController::create');
 });
 
-// Sales endpoints (checkout)
+// Sales pages
+$routes->get('sales', 'Sales::index');
 $routes->post('sales/checkout', 'Sales::checkout');
+
+// Settings
+$routes->get('settings', 'Settings::index');
+$routes->post('settings/profile', 'Settings::updateProfile');
+$routes->post('settings/theme', 'Settings::updateTheme');
+
+// Users management (admin only)
+$routes->get('users', 'Users::index');
+$routes->get('users/create', 'Users::create');
+$routes->post('users/store', 'Users::store');
+$routes->get('users/edit/(:num)', 'Users::edit/$1');
+$routes->post('users/update/(:num)', 'Users::update/$1');
+$routes->post('users/delete/(:num)', 'Users::delete/$1');

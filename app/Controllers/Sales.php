@@ -9,6 +9,35 @@ use CodeIgniter\HTTP\ResponseInterface;
 
 class Sales extends BaseController
 {
+    public function index()
+    {
+        $saleModel = new SaleModel();
+
+        // Today's sales
+        $today = date('Y-m-d 00:00:00');
+        $todayTotal = $saleModel->selectSum('total')->where('created_at >=', $today)->get()->getRowArray()['total'] ?? 0;
+
+        // This week's sales (Monday to Sunday)
+        $startOfWeek = date('Y-m-d 00:00:00', strtotime('monday this week'));
+        $endOfWeek = date('Y-m-d 23:59:59', strtotime('sunday this week'));
+        $weekTotal = $saleModel->selectSum('total')->where('created_at >=', $startOfWeek)->where('created_at <=', $endOfWeek)->get()->getRowArray()['total'] ?? 0;
+
+        // This month's sales
+        $startOfMonth = date('Y-m-01 00:00:00');
+        $monthTotal = $saleModel->selectSum('total')->where('created_at >=', $startOfMonth)->get()->getRowArray()['total'] ?? 0;
+
+        $recentSales = $saleModel->orderBy('created_at', 'DESC')->limit(10)->findAll(); // Last 10 sales
+
+        return view('sales/index', [
+            'todayTotal' => $todayTotal,
+            'weekTotal' => $weekTotal,
+            'monthTotal' => $monthTotal,
+            'recentSales' => $recentSales,
+            'role' => session()->get('user')['role'] ?? '',
+            'username' => session()->get('user')['username'] ?? 'User',
+        ]);
+    }
+
     public function checkout()
     {
         // Expect JSON payload: { items: [{id, qty, price}], total }

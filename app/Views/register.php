@@ -5,45 +5,108 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<title>Register - Pharmacy POS</title>
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+	<style>
+	body {
+			background: linear-gradient(135deg, #e3f2fd 0%, #f3e5f5 100%);
+			min-height: 100vh;
+			display: flex;
+			align-items: center;
+		}
+		.pharmacy-card {
+			border: none;
+			border-radius: 15px;
+			box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+			transition: transform 0.3s ease, box-shadow 0.3s ease;
+		}
+		.pharmacy-card:hover {
+			transform: translateY(-3px);
+			box-shadow: 0 12px 40px rgba(0,0,0,0.15);
+		}
+		.btn-pharmacy {
+			background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+			border: none;
+			color: white;
+			border-radius: 25px;
+			padding: 10px 20px;
+			font-weight: 500;
+			transition: all 0.3s ease;
+		}
+		.btn-pharmacy:hover {
+			background: linear-gradient(135deg, #229954 0%, #28a745 100%);
+			transform: scale(1.05);
+		}
+		.form-control:focus {
+			border-color: #28a745;
+			box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25);
+		}
+	</style>
 </head>
-<body class="bg-light">
-	<div class="container py-5">
+<body>
+	<div class="container">
 		<div class="row justify-content-center">
 			<div class="col-12 col-md-6 col-lg-5">
-				<div class="card shadow-sm">
-					<div class="card-body">
-						<h3 class="mb-4 text-center">Create Account</h3>
+				<div class="text-center mb-4">
+					<i class="fas fa-pills fa-4x text-success mb-3"></i>
+					<h1 class="text-success fw-bold">Pharmacy POS</h1>
+					<p class="text-muted">Join us! Create your account to get started.</p>
+				</div>
+				<div class="card pharmacy-card">
+					<div class="card-body p-4">
+						<h4 class="mb-4 text-center fw-bold text-success">
+							<i class="fas fa-user-plus me-2"></i>Create Your Account
+						</h4>
 						<?php $error = session()->getFlashdata('error'); if ($error): ?>
-							<div class="alert alert-danger" role="alert"><?php echo esc($error); ?></div>
+							<div class="alert alert-danger" role="alert">
+								<i class="fas fa-exclamation-triangle me-2"></i><?php echo esc($error); ?>
+							</div>
 						<?php endif; ?>
 						<?php $success = session()->getFlashdata('success'); if ($success): ?>
-							<div class="alert alert-success" role="alert"><?php echo esc($success); ?></div>
+							<div class="alert alert-success" role="alert">
+								<i class="fas fa-check-circle me-2"></i><?php echo esc($success); ?>
+							</div>
 						<?php endif; ?>
 						<form action="<?php echo site_url('register'); ?>" method="post">
 							<div class="mb-3">
-								<label for="phone" class="form-label">Phone Number</label>
-								<input type="tel" pattern="0[0-9]{10}" class="form-control" id="phone" name="phone" value="<?php echo old('phone'); ?>" placeholder="" required>
-								<div class="form-text">Enter 11-digit Philippines mobile number starting with 09.</div>
+								<label for="phone" class="form-label fw-semibold">
+									<i class="fas fa-mobile-alt me-2 text-success"></i>Phone Number
+								</label>
+								<input type="tel" pattern="0[0-9]{10}" class="form-control form-control-lg" id="phone" name="phone" value="<?php echo old('phone'); ?>" placeholder="" required>
+								<div class="form-text">
+									<i class="fas fa-info-circle me-1"></i>Enter 11-digit Philippines mobile number starting with 09.
+								</div>
 							</div>
 							<div class="mb-3">
-								<label for="username" class="form-label">Username</label>
-								<input type="text" class="form-control" id="username" name="username" value="<?php echo old('username'); ?>" required>
+								<label for="username" class="form-label fw-semibold">
+									<i class="fas fa-user me-2 text-success"></i>Username
+								</label>
+								<input type="text" class="form-control form-control-lg" id="username" name="username" value="<?php echo old('username'); ?>" required>
 							</div>
 							<div class="mb-3">
-								<label for="email" class="form-label">Email</label>
-								<input type="email" class="form-control" id="email" name="email" value="<?php echo old('email'); ?>" required>
+								<label for="email" class="form-label fw-semibold">
+									<i class="fas fa-envelope me-2 text-success"></i>Email
+								</label>
+								<input type="email" class="form-control form-control-lg" id="email" name="email" value="<?php echo old('email'); ?>" required>
 							</div>
 							<div class="mb-3">
-								<label for="password" class="form-label">Password</label>
-								<input type="password" class="form-control" id="password" name="password" required>
+								<label for="password" class="form-label fw-semibold">
+									<i class="fas fa-lock me-2 text-success"></i>Password
+								</label>
+								<input type="password" class="form-control form-control-lg" id="password" name="password" required>
 							</div>
 							<div class="mb-3">
-								<label for="password_confirm" class="form-label">Confirm Password</label>
-								<input type="password" class="form-control" id="password_confirm" name="password_confirm" required>
+								<label for="password_confirm" class="form-label fw-semibold">
+									<i class="fas fa-lock me-2 text-success"></i>Confirm Password
+								</label>
+								<input type="password" class="form-control form-control-lg" id="password_confirm" name="password_confirm" required>
 							</div>
-							<button type="submit" class="btn btn-primary w-100">Register</button>
+							<button type="submit" class="btn btn-pharmacy btn-lg w-100">
+								<i class="fas fa-user-plus me-2"></i>Register
+							</button>
 							<div class="mt-3 text-center">
-								<a href="<?php echo site_url('login'); ?>">Back to Login</a>
+								<a href="<?php echo site_url('login'); ?>" class="text-decoration-none">
+									<i class="fas fa-arrow-left me-1"></i>Back to Login
+								</a>
 							</div>
 						</form>
 					</div>
@@ -54,5 +117,3 @@
 	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
-
-

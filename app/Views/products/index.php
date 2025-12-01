@@ -6,16 +6,20 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<title>Manage Products</title>
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
-<body class="bg-light">
-	<div class="container py-4">
-		<div class="d-flex justify-content-between align-items-center mb-3">
-			<h3 class="mb-0">Manage Products</h3>
-			<div>
-				<a href="<?php echo site_url('dashboard'); ?>" class="btn btn-outline-secondary me-2">Back to Dashboard</a>
-				<a href="<?php echo site_url('products/create'); ?>" class="btn btn-success">Add Product</a>
+<body data-bs-theme="<?php echo session()->get('theme') ?? 'light'; ?>">
+	<?php $currentPage = 'products'; $role = session()->get('user')['role'] ?? ''; $username = esc(session()->get('user')['username'] ?? 'User'); ?>
+	<?php echo view('partials/sidebar', ['currentPage' => $currentPage, 'role' => $role, 'username' => $username]); ?>
+
+	<div class="main-content bg-light">
+		<div class="container py-4">
+			<div class="d-flex justify-content-between align-items-center mb-3">
+				<h3 class="mb-0">Manage Products</h3>
+				<div>
+					<a href="<?php echo site_url('products/create'); ?>" class="btn btn-pharmacy">Add Product</a>
+				</div>
 			</div>
-		</div>
 		<div class="card">
 			<div class="card-body p-0">
 				<table class="table table-striped mb-0">
@@ -55,4 +59,3 @@
 	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
-

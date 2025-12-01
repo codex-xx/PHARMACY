@@ -3,8 +3,9 @@
 <head>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<title>Inventory Alerts</title>
+	<title>Inventory Management</title>
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 	<style>
 		.inventory-card {
 			border-radius: 1rem;
@@ -34,12 +35,15 @@
 		}
 	</style>
 </head>
-<body class="bg-light">
-	<div class="container py-4">
-		<div class="d-flex justify-content-between align-items-center mb-3">
-			<h3 class="mb-0">Inventory Alerts</h3>
-			<a href="<?php echo site_url('dashboard'); ?>" class="btn btn-outline-secondary">Back to POS</a>
-		</div>
+<body data-bs-theme="<?php echo session()->get('theme') ?? 'light'; ?>">
+	<?php $currentPage = 'inventory'; $role = session()->get('user')['role'] ?? ''; $username = esc(session()->get('user')['username'] ?? 'User'); ?>
+	<?php echo view('partials/sidebar', ['currentPage' => $currentPage, 'role' => $role, 'username' => $username]); ?>
+
+	<div class="main-content bg-light">
+		<div class="container py-4">
+			<div class="mb-3">
+				<h3 class="mb-0">Inventory Management</h3>
+			</div>
 
 		<div class="row g-4">
 		<div class="col-12">
@@ -106,5 +110,3 @@
 	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
-
-
