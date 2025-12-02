@@ -98,8 +98,8 @@
 					<tr>
 						<td><?php echo esc($item['product_name']); ?></td>
 						<td class="text-right"><?php echo (int)$item['qty']; ?></td>
-						<td class="text-right">$<?php echo number_format($item['price'], 2); ?></td>
-						<td class="text-right">$<?php echo number_format($item['price'] * $item['qty'], 2); ?></td>
+						<td class="text-right">₱<?php echo number_format($item['price'], 2); ?></td>
+						<td class="text-right">₱<?php echo number_format($item['price'] * $item['qty'], 2); ?></td>
 					</tr>
 					<?php endforeach; ?>
 				</tbody>
@@ -107,7 +107,7 @@
 
 			<div class="receipt-total">
 				<p class="text-right">
-					<strong>Grand Total: $<?php echo number_format($sale['total'], 2); ?></strong>
+					<strong>Grand Total: ₱<?php echo number_format($sale['total'], 2); ?></strong>
 				</p>
 			</div>
 

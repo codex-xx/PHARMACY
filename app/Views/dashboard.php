@@ -97,7 +97,7 @@
 								<div class="card pharmacy-card text-center">
 									<div class="card-body py-3">
 										<i class="fas fa-boxes fa-2x text-primary mb-2"></i>
-										<div class="fw-bold">$<?php echo number_format($totalInventory ?? 0, 2); ?></div>
+										<div class="fw-bold">₱<?php echo number_format($totalInventory ?? 0, 2); ?></div>
 										<small class="text-muted">Inventory Value</small>
 									</div>
 								</div>
@@ -106,7 +106,7 @@
 								<div class="card pharmacy-card text-center">
 									<div class="card-body py-3">
 										<i class="fas fa-dollar-sign fa-2x text-success mb-2"></i>
-										<div class="fw-bold">$<?php echo number_format($todaySales ?? 0, 2); ?></div>
+										<div class="fw-bold">₱<?php echo number_format($todaySales ?? 0, 2); ?></div>
 										<small class="text-muted">Today's Sales</small>
 									</div>
 								</div>
@@ -215,7 +215,7 @@
 									<div class="card border-success mx-auto" style="max-width: 400px;">
 										<div class="card-body py-2">
 											<h6 id="previewName" class="mb-1"></h6>
-											<div><strong>Price:</strong> $<span id="previewPrice"></span></div>
+											<div><strong>Price:</strong> ₱<span id="previewPrice"></span></div>
 											<div><strong>Stock:</strong> <span id="previewStock"></span></div>
 											<button class="btn btn-success btn-sm mt-2 w-100" id="addPreviewBtn">Add to Cart</button>
 										</div>
@@ -261,7 +261,7 @@
 								<hr class="my-2">
 								<div class="d-flex justify-content-between align-items-center mb-2">
 									<strong>Grand Total</strong>
-									<h4 class="mb-0" id="grandTotal">$0.00</h4>
+									<h4 class="mb-0" id="grandTotal">₱0.00</h4>
 								</div>
 								<button class="btn btn-pharmacy w-100" id="checkoutBtn">Checkout</button>
 							</div>
@@ -307,7 +307,7 @@
 
 						<div class="receipt-total">
 							<p class="text-right">
-								<strong>Grand Total: $<span id="receiptTotal"></span></strong>
+								<strong>Grand Total: ₱<span id="receiptTotal"></span></strong>
 							</p>
 						</div>
 
@@ -427,12 +427,12 @@
 							   style="width: 80px;" min="1" value="${item.qty}"
 							   onchange="updateQty(${item.id}, this.value)">
 					</td>
-					<td class="text-end">$${item.price.toFixed(2)}</td>
-					<td class="text-end">$${total.toFixed(2)}</td>
+					<td class="text-end">₱${item.price.toFixed(2)}</td>
+					<td class="text-end">₱${total.toFixed(2)}</td>
 					<td class="text-end"><button class="btn btn-sm btn-outline-danger" onclick="removeFromCart(${item.id})">Remove</button></td>
 				</tr>`;
 		}).join('');
-		grandTotalEl.textContent = `$${grand.toFixed(2)}`;
+		grandTotalEl.textContent = `₱${grand.toFixed(2)}`;
 	}
 
 	// 🔹 Update quantity from manual input
@@ -670,8 +670,8 @@ function showReceiptModal(saleId, cartItems) {
             <tr>
                 <td>${item.name}</td>
                 <td class="text-right">${item.qty}</td>
-                <td class="text-right">$${item.price.toFixed(2)}</td>
-                <td class="text-right">$${itemTotal.toFixed(2)}</td>
+                <td class="text-right">₱${item.price.toFixed(2)}</td>
+                <td class="text-right">₱${itemTotal.toFixed(2)}</td>
             </tr>
         `;
     }).join('');

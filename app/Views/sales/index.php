@@ -21,7 +21,7 @@
 						<div class="card-body">
 							<i class="fas fa-calendar-day fa-3x text-success mb-3"></i>
 							<h4>Today's Sales</h4>
-							<h2 class="text-success">$<?= number_format($todayTotal, 2) ?></h2>
+							<h2 class="text-success">₱<?= number_format($todayTotal, 2) ?></h2>
 							<small class="text-muted">Sales for <?= date('F j, Y') ?></small>
 						</div>
 					</div>
@@ -33,7 +33,7 @@
 						<div class="card-body">
 							<i class="fas fa-calendar-week fa-3x text-primary mb-3"></i>
 							<h4>This Week's Sales</h4>
-							<h2 class="text-primary">$<?= number_format($weekTotal, 2) ?></h2>
+							<h2 class="text-primary">₱<?= number_format($weekTotal, 2) ?></h2>
 							<small class="text-muted">Sales for this week</small>
 						</div>
 					</div>
@@ -45,7 +45,7 @@
 						<div class="card-body">
 							<i class="fas fa-calendar-alt fa-3x text-warning mb-3"></i>
 							<h4>This Month's Sales</h4>
-							<h2 class="text-warning">$<?= number_format($monthTotal, 2) ?></h2>
+							<h2 class="text-warning">₱<?= number_format($monthTotal, 2) ?></h2>
 							<small class="text-muted">Sales for <?= date('F Y') ?></small>
 						</div>
 					</div>
@@ -88,7 +88,7 @@
 														echo date('M j, Y g:i A', strtotime($sale['created_at']));
 														?>
 													</td>
-													<td>$<?= number_format($sale['total'], 2) ?></td>
+													<td>₱<?= number_format($sale['total'], 2) ?></td>
 													<td>
 														<?php
 														// You might want to get user name, but for now just show ID

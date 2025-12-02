@@ -35,7 +35,7 @@
 					<div class="card-body text-center">
 						<i class="fas fa-calendar-day fa-2x mb-2"></i>
 						<div class="small">Today's Sales</div>
-						<div class="h4 mb-0">$<?php echo number_format((float)$salesToday, 2); ?></div>
+						<div class="h4 mb-0">₱<?php echo number_format((float)$salesToday, 2); ?></div>
 					</div>
 				</div>
 			</div>
@@ -44,7 +44,7 @@
 					<div class="card-body text-center">
 						<i class="fas fa-calendar-week fa-2x mb-2"></i>
 						<div class="small">This Week's Sales</div>
-						<div class="h4 mb-0">$<?php echo number_format((float)$salesWeek, 2); ?></div>
+						<div class="h4 mb-0">₱<?php echo number_format((float)$salesWeek, 2); ?></div>
 					</div>
 				</div>
 			</div>
@@ -53,7 +53,7 @@
 					<div class="card-body text-center">
 						<i class="fas fa-calendar-alt fa-2x mb-2"></i>
 						<div class="small">This Month's Sales</div>
-						<div class="h4 mb-0">$<?php echo number_format((float)$salesMonth, 2); ?></div>
+						<div class="h4 mb-0">₱<?php echo number_format((float)$salesMonth, 2); ?></div>
 					</div>
 				</div>
 			</div>
@@ -62,7 +62,7 @@
 					<div class="card-body text-center">
 						<i class="fas fa-coins fa-2x mb-2"></i>
 						<div class="small">Today's Profit</div>
-						<div class="h4 mb-0">$<?php echo number_format((float)$profitToday, 2); ?></div>
+						<div class="h4 mb-0">₱<?php echo number_format((float)$profitToday, 2); ?></div>
 					</div>
 				</div>
 			</div>
@@ -93,7 +93,7 @@
 										<?php foreach ($topSaleProducts as $row): ?>
 										<tr>
 											<td><?php echo esc($row['name']); ?> <small class="text-muted">(#<?php echo (int)$row['product_id']; ?>)</small></td>
-											<td class="text-end">$<?php echo number_format((float)$row['revenue'], 2); ?></td>
+											<td class="text-end">₱<?php echo number_format((float)$row['revenue'], 2); ?></td>
 											<td class="text-end"><?php echo (int)$row['qty_sold']; ?></td>
 										</tr>
 										<?php endforeach; ?>
@@ -116,7 +116,7 @@
 						<div class="row text-center">
 							<div class="col-12">
 								<h5 class="text-primary">Total Inventory Value</h5>
-								<h3>$<?php echo number_format((float)$totalInventoryValue, 2); ?></h3>
+								<h3>₱<?php echo number_format((float)$totalInventoryValue, 2); ?></h3>
 								<p class="text-muted mb-0">Current stock valuation</p>
 							</div>
 						</div>

@@ -20,7 +20,7 @@
 		</div>
 		<div class="card">
 			<div class="card-body">
-				<form method="post" action="<?php echo site_url('products/store'); ?>">
+				<form method="post" action="<?php echo site_url('products'); ?>">
 					<div class="mb-3">
 						<label for="name" class="form-label">Product Name</label>
 						<input type="text" class="form-control" id="name" name="name" required>
