@@ -13,8 +13,19 @@
 
 	<div class="main-content bg-light">
 		<div class="container py-4">
-			<div class="mb-3">
+			<div class="d-flex justify-content-between align-items-center mb-3">
 				<h3 class="mb-0">Reports & Analytics</h3>
+				<div>
+					<a href="<?php echo site_url('reports/export-sales'); ?>" class="btn btn-pharmacy btn-sm me-2">
+						<i class="fas fa-download me-1"></i>Export Sales
+					</a>
+					<a href="<?php echo site_url('reports/export-inventory'); ?>" class="btn btn-pharmacy btn-sm me-2">
+						<i class="fas fa-download me-1"></i>Export Inventory
+					</a>
+					<a href="<?php echo site_url('reports/export-top-products'); ?>" class="btn btn-pharmacy btn-sm">
+						<i class="fas fa-download me-1"></i>Export Top Products
+					</a>
+				</div>
 			</div>
 
 		<!-- Sales Summary Cards -->

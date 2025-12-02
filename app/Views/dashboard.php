@@ -17,6 +17,66 @@
 	.product-card:nth-child(3n+2) .card-body { background: linear-gradient(135deg, #fffde7 0%, #e1f5fe 100%); border-color: #ffe082; }
 	.product-card:nth-child(3n) .card-body { background: linear-gradient(135deg, #e8f5e9 0%, #e3f2fd 100%); border-color: #a5d6a7; }
 	.cart-table td, .cart-table th { vertical-align: middle; }
+
+	/* Receipt styles */
+	.receipt-container {
+		max-width: 400px;
+		margin: 0 auto;
+		border: 1px solid #ddd;
+		padding: 20px;
+		font-family: 'Courier New', monospace;
+		font-size: 14px;
+		line-height: 1.4;
+		background: white;
+	}
+	.receipt-header {
+		text-align: center;
+		border-bottom: 2px solid #000;
+		padding-bottom: 10px;
+		margin-bottom: 15px;
+	}
+	.receipt-title {
+		font-size: 18px;
+		font-weight: bold;
+		margin: 0;
+	}
+	.receipt-subtitle {
+		font-size: 12px;
+		margin: 5px 0;
+	}
+	.receipt-details {
+		margin-bottom: 15px;
+	}
+	.receipt-table {
+		width: 100%;
+		border-collapse: collapse;
+		margin-bottom: 15px;
+	}
+	.receipt-table th,
+	.receipt-table td {
+		padding: 5px 0;
+		text-align: left;
+		border-bottom: 1px dotted #999;
+	}
+	.receipt-table .text-right {
+		text-align: right;
+	}
+	.receipt-total {
+		border-top: 2px solid #000;
+		padding-top: 10px;
+		font-weight: bold;
+		font-size: 16px;
+	}
+	.receipt-footer {
+		text-align: center;
+		margin-top: 20px;
+		font-size: 12px;
+		border-top: 1px dashed #999;
+		padding-top: 10px;
+	}
+	@media print {
+		.receipt-container { border: none; max-width: none; margin: 0; }
+	}
 	</style>
 </head>
 <body data-bs-theme="<?php echo session()->get('theme') ?? 'light'; ?>">
@@ -169,7 +229,13 @@
 				<div class="row g-4">
 					<!-- Products Section -->
 					<div class="col-12 col-lg-7">
-						<h5 class="mb-3">Products</h5>
+						<div class="d-flex justify-content-between align-items-center mb-3">
+							<h5 class="mb-0">Products</h5>
+							<div class="input-group" style="max-width: 300px;">
+								<span class="input-group-text"><i class="fas fa-search"></i></span>
+								<input type="text" class="form-control" id="productSearch" placeholder="Search products...">
+							</div>
+						</div>
 						<div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3" id="products"></div>
 					</div>
 
@@ -203,6 +269,61 @@
 					</div>
 				</div>
 			<?php endif; ?>
+		</div>
+	</div>
+
+	<!-- Receipt Modal -->
+	<div class="modal fade" id="receiptModal" tabindex="-1" aria-labelledby="receiptModalLabel" aria-hidden="true">
+		<div class="modal-dialog modal-lg modal-dialog-centered">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" id="receiptModalLabel">Sale Receipt</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				</div>
+				<div class="modal-body">
+					<div class="receipt-container">
+						<div class="receipt-header text-center">
+							<h1 class="receipt-title">PHARMACY POS</h1>
+							<p class="receipt-subtitle">Sale Receipt</p>
+						</div>
+
+						<div class="receipt-details">
+							<p><strong>Sale ID:</strong> <span id="receiptSaleId"></span></p>
+							<p><strong>Date:</strong> <span id="receiptDate"></span></p>
+							<p><strong>Cashier:</strong> <?php echo esc($username ?? 'User'); ?></p>
+						</div>
+
+						<table class="receipt-table">
+							<thead>
+								<tr>
+									<th>Item</th>
+									<th class="text-right">Qty</th>
+									<th class="text-right">Price</th>
+									<th class="text-right">Total</th>
+								</tr>
+							</thead>
+							<tbody id="receiptItems"></tbody>
+						</table>
+
+						<div class="receipt-total">
+							<p class="text-right">
+								<strong>Grand Total: $<span id="receiptTotal"></span></strong>
+							</p>
+						</div>
+
+						<div class="receipt-footer text-center">
+							<p>Thank you for your business!</p>
+							<p>Pharmacy POS System</p>
+						</div>
+					</div>
+				</div>
+				<div class="modal-footer" id="modalFooter">
+					<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+					<button type="button" class="btn btn-success" id="completeCheckoutBtn" onclick="completeCheckout()">
+						<i class="fas fa-shopping-cart me-2"></i>Complete Checkout & Update Inventory
+					</button>
+				</div>
+			</div>
 		</div>
 	</div>
 
@@ -292,15 +413,19 @@
 		cartBody.innerHTML = Array.from(cart.values()).map(item => {
 			const total = item.qty * item.price;
 			grand += total;
+
+			// Check stock availability
+			const product = products.find(p => p.id === item.id);
+			const isLowStock = product && item.qty > product.stock;
+			const stockWarning = isLowStock ? `<small class="text-danger">Only ${product.stock} available</small>` : '';
+
 			return `
-				<tr>
-					<td>${item.name}</td>
+				<tr class="${isLowStock ? 'table-danger' : ''}">
+					<td>${item.name}${stockWarning ? '<br>' + stockWarning : ''}</td>
 					<td class="text-end">
-						<div class="btn-group btn-group-sm" role="group">
-							<button class="btn btn-outline-secondary" onclick="changeQty(${item.id}, -1)">-</button>
-							<span class="btn btn-light disabled">${item.qty}</span>
-							<button class="btn btn-outline-secondary" onclick="changeQty(${item.id}, 1)">+</button>
-						</div>
+						<input type="number" class="form-control form-control-sm text-center ${isLowStock ? 'border-danger' : ''}"
+							   style="width: 80px;" min="1" value="${item.qty}"
+							   onchange="updateQty(${item.id}, this.value)">
 					</td>
 					<td class="text-end">$${item.price.toFixed(2)}</td>
 					<td class="text-end">$${total.toFixed(2)}</td>
@@ -310,12 +435,75 @@
 		grandTotalEl.textContent = `$${grand.toFixed(2)}`;
 	}
 
-	// 🔹 Checkout — send sale to server
+	// 🔹 Update quantity from manual input
+	function updateQty(id, newQty) {
+		const qty = parseInt(newQty);
+		if (isNaN(qty) || qty < 1) return;
+
+		const item = cart.get(id);
+		if (!item) return;
+
+		item.qty = qty;
+		cart.set(id, item);
+		renderCart();
+	}
+
+	// 🔹 Filter products based on search
+	function filterProducts(searchTerm) {
+		const filteredProducts = searchTerm ?
+			products.filter(p => p.name.toLowerCase().includes(searchTerm.toLowerCase())) :
+			products;
+
+		productsContainer.innerHTML = filteredProducts.map((p, i) => `
+			<div class="col">
+				<div class="card product-card" onclick="addToCart(${p.id})">
+					<div class="card-body">
+						<h6 class="card-title mb-1">${p.name}</h6>
+						<div class="text-muted">₱${p.price.toFixed(2)}</div>
+					</div>
+				</div>
+			</div>
+		`).join('');
+	}
+
+// 🔹 Preview Receipt — show receipt modal first
 	document.getElementById('checkoutBtn').addEventListener('click', () => {
 		if (cart.size === 0) { alert('Cart is empty'); return; }
 
-		const items = Array.from(cart.values()).map(i => ({ id: i.id, qty: i.qty, price: i.price }));
+		// Validate stock availability
+		let stockErrors = [];
+		for (let [productId, cartItem] of cart) {
+			const product = products.find(p => p.id === productId);
+			if (product && cartItem.qty > product.stock) {
+				stockErrors.push(`${product.name}: Requested ${cartItem.qty}, Available ${product.stock}`);
+			}
+		}
+
+		// Show stock errors if any
+		if (stockErrors.length > 0) {
+			alert('Insufficient Stock:\n\n' + stockErrors.join('\n') + '\n\nPlease adjust quantities or remove items with insufficient stock.');
+			return;
+		}
+
+		// Store cart items for later checkout
+		pendingCartItems = Array.from(cart.values());
+
+		// Show receipt modal with cart items for preview
+		showReceiptModal(null, pendingCartItems); // null sale_id for preview
+	});
+
+	// Store cart items for checkout (will be set when modal opens)
+	let pendingCartItems = [];
+
+// 🔹 Complete Checkout — actually process the sale
+	function completeCheckout() {
+		const cartItems = pendingCartItems; // Use stored cart items
+		const items = cartItems.map(i => ({ id: i.id, qty: i.qty, price: i.price }));
 		const payload = { items };
+
+		// Disable the complete checkout button
+		document.getElementById('completeCheckoutBtn').disabled = true;
+		document.getElementById('completeCheckoutBtn').innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Processing...';
 
 		fetch("<?php echo site_url('sales/checkout'); ?>", {
 			method: 'POST',
@@ -323,21 +511,57 @@
 			body: JSON.stringify(payload)
 		}).then(res => res.json()).then(res => {
 			if (res && res.sale_id) {
-				alert('Checkout successful — Sale ID: ' + res.sale_id);
+				// Update local product stock immediately
+				items.forEach(item => {
+					const product = products.find(p => p.id === item.id);
+					if (product) {
+						product.stock = Math.max(0, product.stock - item.qty);
+					}
+				});
+
+				// Update receipt with sale ID
+				document.getElementById('receiptSaleId').textContent = '#' + res.sale_id;
+
+				// Re-render products to show updated stock
+				renderProducts();
+
+				// Update modal footer to show success
+				document.querySelector('.modal-footer').innerHTML = `
+					<div class="alert alert-success w-100 mb-0">
+						<i class="fas fa-check-circle me-2"></i>
+						Checkout completed successfully! Sale ID: #${res.sale_id}
+					</div>
+					<div class="w-100 text-center mt-3">
+						<button type="button" class="btn btn-secondary me-2" data-bs-dismiss="modal">Close</button>
+						<button type="button" class="btn btn-primary" onclick="printReceipt()">
+							<i class="fas fa-print me-2"></i>Print Receipt
+						</button>
+					</div>
+				`;
+
+				// Clear cart after successful checkout
 				cart.clear();
 				renderCart();
-				// Refresh product list to reflect updated stock
-				location.reload();
+
 			} else if (res && res.error) {
 				alert('Error: ' + res.error);
+				// Re-enable button on error
+				document.getElementById('completeCheckoutBtn').disabled = false;
+				document.getElementById('completeCheckoutBtn').innerHTML = '<i class="fas fa-shopping-cart me-2"></i>Complete Checkout';
 			} else {
 				alert('Unexpected response from server');
+				// Re-enable button on error
+				document.getElementById('completeCheckoutBtn').disabled = false;
+				document.getElementById('completeCheckoutBtn').innerHTML = '<i class="fas fa-shopping-cart me-2"></i>Complete Checkout';
 			}
 		}).catch(err => {
 			console.error(err);
 			alert('Checkout failed');
+			// Re-enable button on error
+			document.getElementById('completeCheckoutBtn').disabled = false;
+			document.getElementById('completeCheckoutBtn').innerHTML = '<i class="fas fa-shopping-cart me-2"></i>Complete Checkout';
 		});
-	});
+	}
 
 	// ✅ Barcode Scanner Logic with Preview
 	const barcodeInput = document.getElementById('barcodeInput');
@@ -418,6 +642,80 @@ addPreviewBtn.addEventListener('click', () => {
     }
 });
 
+// 🔹 Show Receipt Modal
+function showReceiptModal(saleId, cartItems) {
+    // Set sale ID and current date
+    document.getElementById('receiptSaleId').textContent = '#' + saleId;
+
+    // Set current date
+    const now = new Date();
+    const dateStr = now.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+        hour: 'numeric',
+        minute: '2-digit',
+        hour12: true
+    });
+    document.getElementById('receiptDate').textContent = dateStr;
+
+    // Render cart items in receipt
+    const receiptItemsEl = document.getElementById('receiptItems');
+    let total = 0;
+
+    receiptItemsEl.innerHTML = cartItems.map(item => {
+        const itemTotal = item.qty * item.price;
+        total += itemTotal;
+        return `
+            <tr>
+                <td>${item.name}</td>
+                <td class="text-right">${item.qty}</td>
+                <td class="text-right">$${item.price.toFixed(2)}</td>
+                <td class="text-right">$${itemTotal.toFixed(2)}</td>
+            </tr>
+        `;
+    }).join('');
+
+    // Set total
+    document.getElementById('receiptTotal').textContent = total.toFixed(2);
+
+    // Clear cart and update UI
+    cart.clear();
+    renderCart();
+
+    // Show modal
+    const modal = new bootstrap.Modal(document.getElementById('receiptModal'));
+    modal.show();
+
+    // Add event listener to refresh page when modal is closed
+    document.getElementById('receiptModal').addEventListener('hidden.bs.modal', function () {
+        location.reload(); // Refresh to show updated stock
+    });
+}
+
+// 🔹 Print Receipt
+function printReceipt() {
+    const printContent = document.querySelector('.receipt-container').innerHTML;
+    const originalContent = document.body.innerHTML;
+
+    document.body.innerHTML = `
+        <div style="font-family: 'Courier New', monospace; font-size: 14px; line-height: 1.4; max-width: 400px; margin: 20px auto;">
+            ${printContent}
+        </div>
+    `;
+
+    window.print();
+    document.body.innerHTML = originalContent;
+
+    // Reinitialize after print
+    renderProducts();
+    renderCart();
+}
+
+	// 🔹 Product search functionality
+	document.getElementById('productSearch').addEventListener('input', function(e) {
+		filterProducts(e.target.value);
+	});
 
 	// Initialize
 	renderProducts();

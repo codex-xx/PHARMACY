@@ -55,7 +55,12 @@
 			<!-- Recent Sales -->
 			<div class="row mt-5">
 				<div class="col-12">
-					<h3 class="mb-3">Recent Sales</h3>
+					<div class="d-flex justify-content-between align-items-center mb-3">
+						<h3 class="mb-0">Recent Sales</h3>
+						<a href="<?php echo site_url('sales/export'); ?>" class="btn btn-pharmacy">
+							<i class="fas fa-download me-2"></i>Export Sales Data
+						</a>
+					</div>
 					<div class="card">
 						<div class="card-body">
 							<div class="table-responsive">

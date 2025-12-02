@@ -38,6 +38,65 @@ class Sales extends BaseController
         ]);
     }
 
+    public function receipt($saleId)
+    {
+        $saleModel = new SaleModel();
+        $itemModel = new SaleItemModel();
+        $productModel = new ProductModel();
+
+        // Get sale details
+        $sale = $saleModel->find($saleId);
+        if (!$sale) {
+            throw new \CodeIgniter\Exceptions\PageNotFoundException('Sale not found');
+        }
+
+        // Get sale items with product details
+        $items = $itemModel->where('sale_id', $saleId)->findAll();
+        foreach ($items as &$item) {
+            $product = $productModel->find($item['product_id']);
+            $item['product_name'] = $product['name'] ?? 'Unknown Product';
+        }
+
+        return view('sales/receipt', [
+            'sale' => $sale,
+            'items' => $items,
+            'username' => session()->get('user')['username'] ?? 'User',
+        ]);
+    }
+
+    public function export()
+    {
+        $saleModel = new SaleModel();
+
+        // Get all sales data
+        $sales = $saleModel->select('id, created_at, total, user_id')
+                          ->orderBy('created_at', 'DESC')
+                          ->findAll();
+
+        // Set headers for CSV download
+        header('Content-Type: text/csv');
+        header('Content-Disposition: attachment; filename="sales_export_' . date('Y-m-d') . '.csv"');
+
+        // Open output stream
+        $output = fopen('php://output', 'w');
+
+        // CSV headers
+        fputcsv($output, ['Sale ID', 'Date', 'Total', 'User ID']);
+
+        // CSV data
+        foreach ($sales as $sale) {
+            fputcsv($output, [
+                $sale['id'],
+                date('Y-m-d H:i:s', strtotime($sale['created_at'])),
+                number_format($sale['total'], 2),
+                $sale['user_id']
+            ]);
+        }
+
+        fclose($output);
+        exit;
+    }
+
     public function checkout()
     {
         // Expect JSON payload: { items: [{id, qty, price}], total }

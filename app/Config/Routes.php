@@ -40,6 +40,9 @@ $routes->get('products/delete/(:num)', 'Products::delete/$1');
 // Inventory & Reports
 $routes->get('inventory', 'Inventory::index');
 $routes->get('reports', 'Reports::index');
+$routes->get('reports/export-sales', 'Reports::exportSales');
+$routes->get('reports/export-inventory', 'Reports::exportInventory');
+$routes->get('reports/export-top-products', 'Reports::exportTopProducts');
 
 // Chat (AJAX)
 $routes->get('chat/fetch', 'Chat::fetch');
@@ -76,6 +79,8 @@ $routes->group('api', ['namespace' => 'App\Controllers\Api'], function($routes) 
 
 // Sales pages
 $routes->get('sales', 'Sales::index');
+$routes->get('sales/receipt/(:num)', 'Sales::receipt/$1');
+$routes->get('sales/export', 'Sales::export');
 $routes->post('sales/checkout', 'Sales::checkout');
 
 // Settings
